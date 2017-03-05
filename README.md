@@ -7,3 +7,16 @@ See the file [NEWS](https://raw.githubusercontent.com/strace/strace/master/NEWS)
 Please send bug reports and enhancements to [the strace mailing list](https://lists.sourceforge.net/lists/listinfo/strace-devel).
 
 [![Build Status](https://travis-ci.org/strace/strace.svg?branch=master)](https://travis-ci.org/strace/strace) [![Code Coverage](https://codecov.io/github/strace/strace/coverage.svg?branch=master)](https://codecov.io/github/strace/strace?branch=master)
+
+INSTALLATION GUIDELINES 
+========================
+
+1. 	Install using tarball
+--------------------------
+
+To install `strace` using tarball run GNU Automake command and follow instructions given in `INSTALL` file.
+
+2.	Build using git 
+---------------------
+
+To build strace source code downloaded from git repository, first run `./bootstrap` script and then follow the guidelines given in `INSTALL` file.
