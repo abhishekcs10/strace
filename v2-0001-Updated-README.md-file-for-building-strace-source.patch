@@ -1,0 +1,34 @@
+From 3efa467b5a611d8dc34270ddacf6caf31549cba2 Mon Sep 17 00:00:00 2001
+From: Abhishek Tiwari <erabhishektiwarics@gmail.com>
+Date: Sun, 5 Mar 2017 18:16:14 +0530
+Subject: [PATCH v2] Updated README.md file for building strace source code
+ from git version
+
+---
+ README.md | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/README.md b/README.md
+index 35663a1..0384fc2 100644
+--- a/README.md
++++ b/README.md
+@@ -7,3 +7,16 @@ See the file [NEWS](https://raw.githubusercontent.com/strace/strace/master/NEWS)
+ Please send bug reports and enhancements to [the strace mailing list](https://lists.sourceforge.net/lists/listinfo/strace-devel).
+ 
+ [![Build Status](https://travis-ci.org/strace/strace.svg?branch=master)](https://travis-ci.org/strace/strace) [![Code Coverage](https://codecov.io/github/strace/strace/coverage.svg?branch=master)](https://codecov.io/github/strace/strace?branch=master)
++
++INSTALLATION GUIDELINES 
++========================
++
++1. 	Install using tarball
++--------------------------
++
++To install `strace` using tarball run GNU Automake command and follow instructions given in `INSTALL` file.
++
++2.	Build using git 
++---------------------
++
++To build strace source code downloaded from git repository, first run `./bootstrap` script and then follow the guidelines given in `INSTALL` file.
+-- 
+2.7.4
+
