@@ -731,6 +731,7 @@ DECODER_TESTS = \
 	rt_sigtimedwait.test \
 	rt_tgsigqueueinfo.test \
 	sched.test \
+	stat.test \
 	sched_get_priority_mxx.test \
 	sched_rr_get_interval.test \
 	sched_xetaffinity.test \
