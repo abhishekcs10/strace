@@ -1,0 +1,1720 @@
+From d843416a5964bce6e6d8a0c9fc81881fc04ed05f Mon Sep 17 00:00:00 2001
+From: Abhishek Tiwari <erabhishektiwarics@gmail.com>
+Date: Sat, 11 Mar 2017 09:44:39 +0530
+Subject: [PATCH v1] Implement -e trace=%stat option for tracing stat like
+ syscalls.
+
+linux/*/syscallent.h part is modified automatically by:
+
+	git grep -Fl 'SEN(stat' linux/ | xargs sed -i 's/TF\(,[[:space:]]*SEN(stat\)/TF|TST\1/'
+	git grep -Fl 'SEN(fstat' linux/ | xargs sed -i 's/TF\(,[[:space:]]*SEN(fstat\)/TF|TST\1/'
+	git grep -Fl 'SEN(lstat' linux/ | xargs sed -i 's/TF\(,[[:space:]]*SEN(lstat\)/TF|TST\1/'
+	git grep -Fl 'SEN(ustat' linux/ | xargs sed -i 's/0\(,[[:space:]]*SEN(ustat\)/TST\1/'
+	git grep -Fl 'SEN(newfstat' linux/ | xargs sed -i 's/TF\(,[[:space:]]*SEN(newfstat\)/TF|TST\1/'
+
+sysent.h (TRACE_STAT): New definition.
+syscall.c: Alias TST to TRACE_STAT around syscallent.h inclusion.
+linux/32/syscallent.h:	Add TST flag for stat-like sycalls.
+linux/64/syscallent.h:	Likewise.
+linux/aarch64/syscallent.h:	Likewise.
+linux/alpha/syscallent.h:	Likewise.
+linux/arm/syscallent.h:	Likewise.
+linux/avr32/syscallent.h:	Likewise.
+linux/bfin/syscallent.h:	Likewise.
+linux/crisv10/syscallent.h:	Likewise.
+linux/hppa/syscallent.h:	Likewise.
+linux/i386/syscallent.h:	Likewise.
+linux/ia64/syscallent.h:	Likewise.
+linux/m68k/syscallent.h:	Likewise.
+linux/microblaze/syscallent.h:	Likewise.
+linux/mips/syscallent-n32.h:	Likewise.
+linux/mips/syscallent-n64.h:	Likewise.
+linux/mips/syscallent-o32.h:	Likewise.
+linux/powerpc/syscallent.h:	Likewise.
+linux/powerpc64/syscallent.h:	Likewise.
+linux/s390/syscallent.h:	Likewise.
+linux/s390x/syscallent.h:	Likewise.
+linux/sh/syscallent.h:	Likewise.
+linux/sh64/syscallent.h:	Likewise.
+linux/sparc/syscallent.h:	Likewise.
+linux/sparc64/syscallent.h:	Likewise.
+linux/x32/syscallent.h:	Likewise.
+linux/x86_64/syscallent.h:	Likewise.
+linux/xtensa/syscallent.h:	Likewise.
+qualify.c (lookup_class):	Add SCHED_STAT for "%stat"
+strace.1 (.SS Filtering):	Add information about %sched syscall class.
+tests/Makefile.am (DECODER_TESTS): Add stat_like.test.
+tests/ksysent.c:	Define TST to 0.
+tests/nsyscalls.c:	Likewise.
+tests/sched.test:	Did correction for futex.
+tests/stat_like.test:	New test.
+---
+ linux/32/syscallent.h         |  4 +--
+ linux/64/syscallent.h         |  4 +--
+ linux/aarch64/syscallent.h    | 14 +++++------
+ linux/alpha/syscallent.h      | 14 +++++------
+ linux/arm/syscallent.h        | 16 ++++++------
+ linux/avr32/syscallent.h      | 16 ++++++------
+ linux/bfin/syscallent.h       | 16 ++++++------
+ linux/crisv10/syscallent.h    | 16 ++++++------
+ linux/hppa/syscallent.h       | 16 ++++++------
+ linux/i386/syscallent.h       | 16 ++++++------
+ linux/ia64/syscallent.h       | 16 ++++++------
+ linux/m68k/syscallent.h       | 16 ++++++------
+ linux/microblaze/syscallent.h | 16 ++++++------
+ linux/mips/syscallent-n32.h   | 12 ++++-----
+ linux/mips/syscallent-n64.h   | 10 ++++----
+ linux/mips/syscallent-o32.h   | 16 ++++++------
+ linux/powerpc/syscallent.h    | 16 ++++++------
+ linux/powerpc64/syscallent.h  | 12 ++++-----
+ linux/s390/syscallent.h       | 16 ++++++------
+ linux/s390x/syscallent.h      | 12 ++++-----
+ linux/sh/syscallent.h         | 16 ++++++------
+ linux/sh64/syscallent.h       | 16 ++++++------
+ linux/sparc/syscallent.h      | 18 +++++++-------
+ linux/sparc64/syscallent.h    | 18 +++++++-------
+ linux/x32/syscallent.h        | 10 ++++----
+ linux/x86_64/syscallent.h     | 10 ++++----
+ linux/xtensa/syscallent.h     | 16 ++++++------
+ qualify.c                     |  2 ++
+ strace.1                      |  3 +++
+ syscall.c                     |  2 ++
+ sysent.h                      |  2 +-
+ tests/Makefile.am             |  1 +
+ tests/ksysent.c               |  1 +
+ tests/nsyscalls.c             |  1 +
+ tests/sched.test              |  2 +-
+ tests/stat.test               |  0
+ tests/stat_like.test          | 58 +++++++++++++++++++++++++++++++++++++++++++
+ 37 files changed, 259 insertions(+), 191 deletions(-)
+ mode change 100755 => 100644 tests/stat.test
+ create mode 100755 tests/stat_like.test
+
+diff --git a/linux/32/syscallent.h b/linux/32/syscallent.h
+index a8f9510..60614af 100644
+--- a/linux/32/syscallent.h
++++ b/linux/32/syscallent.h
+@@ -44,7 +44,7 @@
+ [ 40] = { 5,	TF,		SEN(mount),			"mount"			},
+ [ 41] = { 2,	TF,		SEN(pivotroot),			"pivot_root"		},
+ [ 42] = { 3,	0,		SEN(nfsservctl),		"nfsservctl"		},
+-[ 43] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[ 43] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [ 44] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [ 45] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [ 46] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+@@ -80,7 +80,7 @@
+ [ 76] = { 6,	TD,		SEN(splice),			"splice"		},
+ [ 77] = { 4,	TD,		SEN(tee),			"tee"			},
+ [ 78] = { 4,	TD|TF,		SEN(readlinkat),		"readlinkat"		},
+-[ 79] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[ 79] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [ 80] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [ 81] = { 0,	0,		SEN(sync),			"sync"			},
+ [ 82] = { 1,	TD,		SEN(fsync),			"fsync"			},
+diff --git a/linux/64/syscallent.h b/linux/64/syscallent.h
+index a705eae..015fd18 100644
+--- a/linux/64/syscallent.h
++++ b/linux/64/syscallent.h
+@@ -41,7 +41,7 @@
+ [ 40] = { 5,	TF,		SEN(mount),			"mount"			},
+ [ 41] = { 2,	TF,		SEN(pivotroot),			"pivot_root"		},
+ [ 42] = { 3,	0,		SEN(nfsservctl),		"nfsservctl"		},
+-[ 43] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 43] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [ 44] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [ 45] = { 2,	TF,		SEN(truncate),			"truncate"		},
+ [ 46] = { 2,	TD,		SEN(ftruncate),			"ftruncate"		},
+@@ -77,7 +77,7 @@
+ [ 76] = { 6,	TD,		SEN(splice),			"splice"		},
+ [ 77] = { 4,	TD,		SEN(tee),			"tee"			},
+ [ 78] = { 4,	TD|TF,		SEN(readlinkat),		"readlinkat"		},
+-[ 79] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[ 79] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [ 80] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [ 81] = { 0,	0,		SEN(sync),			"sync"			},
+ [ 82] = { 1,	TD,		SEN(fsync),			"fsync"			},
+diff --git a/linux/aarch64/syscallent.h b/linux/aarch64/syscallent.h
+index 6b23f8c..87e90c8 100644
+--- a/linux/aarch64/syscallent.h
++++ b/linux/aarch64/syscallent.h
+@@ -27,8 +27,8 @@
+ [1035] = { 3,	TF,		SEN(readlink),		"readlink"	},
+ [1036] = { 2,	TF,		SEN(symlink),		"symlink"	},
+ [1037] = { 2,	TF,		SEN(utimes),		"utimes"	},
+-[1038] = { 2,	TF,		SEN(stat),		"stat"		},
+-[1039] = { 2,	TF,		SEN(lstat),		"lstat"		},
++[1038] = { 2,	TF|TST,		SEN(stat),		"stat"		},
++[1039] = { 2,	TF|TST,		SEN(lstat),		"lstat"		},
+ [1040] = { 1,	TD,		SEN(pipe),		"pipe"		},
+ [1041] = { 2,	TD,		SEN(dup2),		"dup2"		},
+ [1042] = { 1,	TD,		SEN(epoll_create),	"epoll_create"	},
+@@ -38,14 +38,14 @@
+ [1046] = { 4,	TD|TN,		SEN(sendfile64),	"sendfile"	},
+ [1047] = { 2,	TD,		SEN(ftruncate),		"ftruncate"	},
+ [1048] = { 2,	TF,		SEN(truncate),		"truncate"	},
+-[1049] = { 2,	TF,		SEN(stat),		"stat"		},
+-[1050] = { 2,	TF,		SEN(lstat),		"lstat"		},
++[1049] = { 2,	TF|TST,		SEN(stat),		"stat"		},
++[1050] = { 2,	TF|TST,		SEN(lstat),		"lstat"		},
+ [1051] = { 2,	TD,		SEN(fstat),		"fstat"		},
+ [1052] = { 3,	TD,		SEN(fcntl),		"fcntl"		},
+ [1053] = { 4,	TD,		SEN(fadvise64),		"fadvise64"	},
+-[1054] = { 4,	TD|TF,		SEN(newfstatat),	"newfstatat"	},
++[1054] = { 4,	TD|TF|TST,		SEN(newfstatat),	"newfstatat"	},
+ [1055] = { 2,	TD,		SEN(fstatfs),		"fstatfs"	},
+-[1056] = { 2,	TF,		SEN(statfs),		"statfs"	},
++[1056] = { 2,	TF|TST,		SEN(statfs),		"statfs"	},
+ [1057] = { 3,	TD,		SEN(lseek),		"lseek"		},
+ [1058] = { 6,	TD|TM|SI,	SEN(mmap),		"mmap"		},
+ [1059] = { 1,	0,		SEN(alarm),		"alarm"		},
+@@ -59,7 +59,7 @@
+ [1067] = { 5,	TD,		SEN(select),		"select"	},
+ [1068] = { 3,	TD,		SEN(poll),		"poll"		},
+ [1069] = { 4,	TD,		SEN(epoll_wait),	"epoll_wait"	},
+-[1070] = { 2,	0,		SEN(ustat),		"ustat"		},
++[1070] = { 2,	TST,		SEN(ustat),		"ustat"		},
+ [1071] = { 0,	TP,		SEN(vfork),		"vfork"		},
+ [1072] = { 4,	TP,		SEN(wait4),		"wait4"		},
+ [1073] = { 4,	TN,		SEN(recv),		"recv"		},
+diff --git a/linux/alpha/syscallent.h b/linux/alpha/syscallent.h
+index 4449f22..2142561 100644
+--- a/linux/alpha/syscallent.h
++++ b/linux/alpha/syscallent.h
+@@ -93,8 +93,8 @@
+ [ 64] = { 0,	0,		SEN(getpagesize),		"getpagesize"		},
+ [ 65] = { 5,	TM,		SEN(printargs),			"osf_mremap"		}, /*not implemented */
+ [ 66] = { 0,	TP,		SEN(vfork),			"vfork"			},
+-[ 67] = { 2,	TF,		SEN(stat),			"stat"			},
+-[ 68] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[ 67] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[ 68] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [ 69] = { 5,	TM,		SEN(printargs),			"osf_sbrk"		}, /*not implemented */
+ [ 70] = { 5,	0,		SEN(printargs),			"osf_sstk"		}, /*not implemented */
+ [ 71] = { 6,	TD|TM|SI,	SEN(mmap),			"mmap"			},
+@@ -290,8 +290,8 @@
+ [324] = { 1,	NF,		SEN(personality),		"personality"		},
+ [325] = { 1,	NF,		SEN(setfsuid),			"setfsuid"		},
+ [326] = { 1,	NF,		SEN(setfsgid),			"setfsgid"		},
+-[327] = { 2,	0,		SEN(ustat),			"ustat"			},
+-[328] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[327] = { 2,	TST,		SEN(ustat),			"ustat"			},
++[328] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [329] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [330] = { 2,	TSC,		SEN(sched_setparam),		"sched_setparam"	},
+ [331] = { 2,	TSC,		SEN(sched_getparam),		"sched_getparam"	},
+@@ -387,8 +387,8 @@
+ [422] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+ [423] = { 4,	TI,		SEN(semtimedop),		"semtimedop"		},
+ [424] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+-[425] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[426] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[425] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[426] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [427] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [428] = { 5,	0,		SEN(vserver),			"vserver"		},
+ [429] = { 6,	TM,		SEN(mbind),			"mbind"			},
+@@ -417,7 +417,7 @@
+ [452] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [453] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [454] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[455] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[455] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [456] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [457] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [458] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/arm/syscallent.h b/linux/arm/syscallent.h
+index ed9ec9a..6e6d236 100644
+--- a/linux/arm/syscallent.h
++++ b/linux/arm/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -221,8 +221,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_4koff),		"mmap2"			},
+ [193] = { 4,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 4,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"lchown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -290,7 +290,7 @@
+ [263] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [264] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [265] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[266] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[266] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [267] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [268] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [269] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -351,7 +351,7 @@
+ [324] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [325] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [326] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[327] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[327] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [328] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [329] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [330] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/avr32/syscallent.h b/linux/avr32/syscallent.h
+index 7f50934..7969646 100644
+--- a/linux/avr32/syscallent.h
++++ b/linux/avr32/syscallent.h
+@@ -55,9 +55,9 @@
+ [ 27] = { 1,	0,		SEN(alarm),			"alarm"			},
+ [ 28] = { 0,	TS,		SEN(pause),			"pause"			},
+ [ 29] = { 2,	TF,		SEN(utime),			"utime"			},
+-[ 30] = { 2,	TF,		SEN(stat),			"stat"			},
++[ 30] = { 2,	TF|TST,		SEN(stat),			"stat"			},
+ [ 31] = { 2,	TD,		SEN(fstat),			"fstat"			},
+-[ 32] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[ 32] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [ 33] = { 2,	TF,		SEN(access),			"access"		},
+ [ 34] = { 1,	TF,		SEN(chroot),			"chroot"		},
+ [ 35] = { 0,	0,		SEN(sync),			"sync"			},
+@@ -87,7 +87,7 @@
+ [ 59] = { 3,	0,		SEN(getresuid),			"getresuid"		},
+ [ 60] = { 2,	0,		SEN(setreuid),			"setreuid"		},
+ [ 61] = { 2,	0,		SEN(setregid),			"setregid"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -124,7 +124,7 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	TP,		SEN(wait4),			"wait4"			},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 0,	0,		SEN(vhangup),			"vhangup"		},
+ [102] = { 2,	TS,		SEN(sigaltstack),		"sigaltstack"		},
+@@ -193,8 +193,8 @@
+ [165] = { 3,	TN,		SEN(recvmsg),			"recvmsg"		},
+ [166] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [167] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[168] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[169] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[168] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[169] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [170] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [171] = { 2,	TF,		SEN(pivotroot),			"pivot_root"		},
+ [172] = { 3,	TM,		SEN(mincore),			"mincore"		},
+@@ -244,7 +244,7 @@
+ [216] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [217] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [218] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[219] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[219] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [220] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [221] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [222] = { },
+@@ -273,7 +273,7 @@
+ [245] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [246] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [247] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[248] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[248] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [249] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [250] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [251] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/bfin/syscallent.h b/linux/bfin/syscallent.h
+index 800b943..22d1474 100644
+--- a/linux/bfin/syscallent.h
++++ b/linux/bfin/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -221,8 +221,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_pgoff),		"mmap2"			},
+ [193] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"chown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -294,7 +294,7 @@
+ [266] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [267] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [268] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[269] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[269] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [270] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [271] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [272] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -325,7 +325,7 @@
+ [297] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [298] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [299] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[300] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[300] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [301] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [302] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [303] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/crisv10/syscallent.h b/linux/crisv10/syscallent.h
+index 96fb6bd..53b8959 100644
+--- a/linux/crisv10/syscallent.h
++++ b/linux/crisv10/syscallent.h
+@@ -60,7 +60,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -97,15 +97,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -192,8 +192,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_pgoff),		"mmap2"			},
+ [193] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"lchown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -262,7 +262,7 @@
+ [265] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [266] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [267] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[268] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[268] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [269] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [270] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [271] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -293,7 +293,7 @@
+ [297] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [298] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [299] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[300] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[300] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [301] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [302] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [303] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/hppa/syscallent.h b/linux/hppa/syscallent.h
+index 647a2dc..779907f 100644
+--- a/linux/hppa/syscallent.h
++++ b/linux/hppa/syscallent.h
+@@ -20,7 +20,7 @@
+ [ 15] = { 2,	TF,		SEN(chmod),			"chmod"			},
+ [ 16] = { 3,	TF,		SEN(chown),			"lchown"		},
+ [ 17] = { 3,	TN,		SEN(socket),			"socket"		},
+-[ 18] = { 2,	TF,		SEN(stat),			"stat"			},
++[ 18] = { 2,	TF|TST,		SEN(stat),			"stat"			},
+ [ 19] = { 3,	TD,		SEN(lseek),			"lseek"			},
+ [ 20] = { 0,	NF,		SEN(getpid),			"getpid"		},
+ [ 21] = { 5,	TF,		SEN(mount),			"mount"			},
+@@ -64,7 +64,7 @@
+ [ 59] = { 1,	0,		SEN(uname),			"uname"			},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -86,7 +86,7 @@
+ [ 81] = { 2,	0,		SEN(setgroups),			"setgroups"		},
+ [ 82] = { 6,	TN,		SEN(sendto),			"sendto"		},
+ [ 83] = { 2,	TF,		SEN(symlink),			"symlink"		},
+-[ 84] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[ 84] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [ 85] = { 3,	TF,		SEN(readlink),			"readlink"		},
+ [ 86] = { 1,	TF,		SEN(uselib),			"uselib"		},
+ [ 87] = { 2,	TF,		SEN(swapon),			"swapon"		},
+@@ -101,9 +101,9 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	TN,		SEN(recv),			"recv"			},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+-[101] = { 2,	TF,		SEN(stat64),			"stat64"		},
++[101] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
+ [102] = { },
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+@@ -200,7 +200,7 @@
+ [195] = { 3,	TI,		SEN(shmctl),			"shmctl"		},
+ [196] = { 5,	TN,		SEN(getpmsg),			"getpmsg"		},
+ [197] = { 5,	TN,		SEN(putpmsg),			"putpmsg"		},
+-[198] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[198] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [199] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [200] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+ [201] = { 3,	TD,		SEN(getdents64),		"getdents64"		},
+@@ -282,7 +282,7 @@
+ [277] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [278] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [279] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[280] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[280] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [281] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [282] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [283] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+@@ -300,7 +300,7 @@
+ [295] = { 6,	TM,		SEN(move_pages),		"move_pages"		},
+ [296] = { 3,	0,		SEN(getcpu),			"getcpu"		},
+ [297] = { 6,	TD,		SEN(epoll_pwait),		"epoll_pwait"		},
+-[298] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[298] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [299] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [300] = { 4,	0,		SEN(kexec_load),		"kexec_load"		},
+ [301] = { 4,	TD|TF,		SEN(utimensat),			"utimensat"		},
+diff --git a/linux/i386/syscallent.h b/linux/i386/syscallent.h
+index 8ef1b1c..d36c5fd 100644
+--- a/linux/i386/syscallent.h
++++ b/linux/i386/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -221,8 +221,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_pgoff),		"mmap2"			},
+ [193] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"lchown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -293,7 +293,7 @@
+ [265] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [266] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [267] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[268] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[268] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [269] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [270] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [271] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -325,7 +325,7 @@
+ [297] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [298] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [299] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[300] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[300] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [301] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [302] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [303] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/ia64/syscallent.h b/linux/ia64/syscallent.h
+index 895e7ae..60e16a9 100644
+--- a/linux/ia64/syscallent.h
++++ b/linux/ia64/syscallent.h
+@@ -86,7 +86,7 @@
+ [1066] = { 3,	TD,		SEN(fcntl),			"fcntl"			},
+ [1067] = { 1,	NF,		SEN(umask),			"umask"			},
+ [1068] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[1069] = { 2,	0,		SEN(ustat),			"ustat"			},
++[1069] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [1070] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [1071] = { 2,	0,		SEN(setreuid),			"setreuid"		},
+ [1072] = { 2,	0,		SEN(setregid),			"setregid"		},
+@@ -120,7 +120,7 @@
+ [1100] = { 3,	TD,		SEN(fchown),			"fchown"		},
+ [1101] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [1102] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+-[1103] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[1103] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [1104] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [1105] = { 0,	NF,		SEN(gettid),			"gettid"		},
+ [1106] = { 3,	TI,		SEN(semget),			"semget"		},
+@@ -137,8 +137,8 @@
+ [1117] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [1118] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [1119] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[1120] = { 2,	TF,		SEN(stat),			"stat"			},
+-[1121] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[1120] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[1121] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [1122] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [1123] = { 0,	0,		SEN(vhangup),			"vhangup"		},
+ [1124] = { 3,	TF,		SEN(chown),			"lchown"		},
+@@ -227,8 +227,8 @@
+ [1207] = { 2,	TF,		SEN(pivotroot),			"pivot_root"		},
+ [1208] = { 3,	TM,		SEN(mincore),			"mincore"		},
+ [1209] = { 3,	TM,		SEN(madvise),			"madvise"		},
+-[1210] = { 2,	TF,		SEN(stat),			"stat"			},
+-[1211] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[1210] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[1211] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [1212] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [1213] = { 6,	TP,		SEN(clone),			"clone2"		},
+ [1214] = { 3,	TD,		SEN(getdents64),		"getdents64"		},
+@@ -275,7 +275,7 @@
+ [1255] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [1256] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+ [1257] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+-[1258] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[1258] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [1259] = { 6,	TM,		SEN(mbind),			"mbind"			},
+ [1260] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		},
+ [1261] = { 3,	TM,		SEN(set_mempolicy),		"set_mempolicy"		},
+@@ -303,7 +303,7 @@
+ [1283] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [1284] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [1285] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[1286] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[1286] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [1287] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [1288] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [1289] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/m68k/syscallent.h b/linux/m68k/syscallent.h
+index 8e7dd97..65e7ddd 100644
+--- a/linux/m68k/syscallent.h
++++ b/linux/m68k/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -221,8 +221,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_pgoff),		"mmap2"			},
+ [193] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"chown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -288,7 +288,7 @@
+ [260] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [261] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [262] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[263] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[263] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [264] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [265] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [266] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -318,7 +318,7 @@
+ [290] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [291] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [292] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[293] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[293] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [294] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [295] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [296] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/microblaze/syscallent.h b/linux/microblaze/syscallent.h
+index 2a59eb3..aefa3d6 100644
+--- a/linux/microblaze/syscallent.h
++++ b/linux/microblaze/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -221,8 +221,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_pgoff),		"mmap2"			},
+ [193] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"lchown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -293,7 +293,7 @@
+ [265] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [266] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [267] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[268] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[268] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [269] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [270] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [271] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -325,7 +325,7 @@
+ [297] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [298] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [299] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[300] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[300] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [301] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [302] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [303] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/mips/syscallent-n32.h b/linux/mips/syscallent-n32.h
+index 052af4f..33443b9 100644
+--- a/linux/mips/syscallent-n32.h
++++ b/linux/mips/syscallent-n32.h
+@@ -4,9 +4,9 @@
+ [6001] = { 3,	TD,		SEN(write),			"write"			},
+ [6002] = { 3,	TD|TF,		SEN(open),			"open"			},
+ [6003] = { 1,	TD,		SEN(close),			"close"			},
+-[6004] = { 2,	TF,		SEN(stat64),			"stat"			},
++[6004] = { 2,	TF|TST,		SEN(stat64),			"stat"			},
+ [6005] = { 2,	TD,		SEN(fstat64),			"fstat"			},
+-[6006] = { 2,	TF,		SEN(lstat64),			"lstat"			},
++[6006] = { 2,	TF|TST,		SEN(lstat64),			"lstat"			},
+ [6007] = { 3,	TD,		SEN(poll),			"poll"			},
+ [6008] = { 3,	TD,		SEN(lseek),			"lseek"			},
+ [6009] = { 6,	TD|TM|SI,	SEN(mmap),			"mmap"			},
+@@ -133,8 +133,8 @@
+ [6130] = { 2,	TF,		SEN(utime),			"utime"			},
+ [6131] = { 3,	TF,		SEN(mknod),			"mknod"			},
+ [6132] = { 1,	NF,		SEN(personality),		"personality"		},
+-[6133] = { 2,	0,		SEN(ustat),			"ustat"			},
+-[6134] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[6133] = { 2,	TST,		SEN(ustat),			"ustat"			},
++[6134] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [6135] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [6136] = { 3,	0,		SEN(sysfs),			"sysfs"			},
+ [6137] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+@@ -217,7 +217,7 @@
+ [6214] = { 0,	0,		SEN(restart_syscall),		"restart_syscall"	},
+ [6215] = { 4,	TI,		SEN(semtimedop),		"semtimedop"		},
+ [6216] = { 4,	TD,		SEN(fadvise64_64),		"fadvise64"		},
+-[6217] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[6217] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [6218] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [6219] = { 4,	TD|TN,		SEN(sendfile64),		"sendfile64"		},
+ [6220] = { 3,	0,		SEN(timer_create),		"timer_create"		},
+@@ -256,7 +256,7 @@
+ [6253] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [6254] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [6255] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[6256] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[6256] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [6257] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [6258] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [6259] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/mips/syscallent-n64.h b/linux/mips/syscallent-n64.h
+index fdd778b..504e121 100644
+--- a/linux/mips/syscallent-n64.h
++++ b/linux/mips/syscallent-n64.h
+@@ -4,9 +4,9 @@
+ [5001] = { 3,	TD,		SEN(write),			"write"			},
+ [5002] = { 3,	TD|TF,		SEN(open),			"open"			},
+ [5003] = { 1,	TD,		SEN(close),			"close"			},
+-[5004] = { 2,	TF,		SEN(stat),			"stat"			},
++[5004] = { 2,	TF|TST,		SEN(stat),			"stat"			},
+ [5005] = { 2,	TD,		SEN(fstat),			"fstat"			},
+-[5006] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[5006] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [5007] = { 3,	TD,		SEN(poll),			"poll"			},
+ [5008] = { 3,	TD,		SEN(lseek),			"lseek"			},
+ [5009] = { 6,	TD|TM|SI,	SEN(mmap),			"mmap"			},
+@@ -133,8 +133,8 @@
+ [5130] = { 2,	TF,		SEN(utime),			"utime"			},
+ [5131] = { 3,	TF,		SEN(mknod),			"mknod"			},
+ [5132] = { 1,	NF,		SEN(personality),		"personality"		},
+-[5133] = { 2,	0,		SEN(ustat),			"ustat"			},
+-[5134] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[5133] = { 2,	TST,		SEN(ustat),			"ustat"			},
++[5134] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [5135] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [5136] = { 3,	0,		SEN(sysfs),			"sysfs"			},
+ [5137] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+@@ -252,7 +252,7 @@
+ [5249] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [5250] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [5251] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[5252] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[5252] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [5253] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [5254] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [5255] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/mips/syscallent-o32.h b/linux/mips/syscallent-o32.h
+index 509a719..afc69b3 100644
+--- a/linux/mips/syscallent-o32.h
++++ b/linux/mips/syscallent-o32.h
+@@ -62,7 +62,7 @@
+ [4059] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [4060] = { 1,	NF,		SEN(umask),			"umask"			},
+ [4061] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[4062] = { 2,	0,		SEN(ustat),			"ustat"			},
++[4062] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [4063] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [4064] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [4065] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -99,15 +99,15 @@
+ [4096] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [4097] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [4098] = { 0,	0,		SEN(profil),			"profil"		},
+-[4099] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[4099] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [4100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [4101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [4102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [4103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [4104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [4105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[4106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[4107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[4106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[4107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [4108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [4109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [4110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -213,8 +213,8 @@
+ [4210] = { 6,	TD|TM|SI,	SEN(mmap_4koff),		"mmap2"			},
+ [4211] = { 4,	TF,		SEN(truncate64),		"truncate64"		},
+ [4212] = { 4,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[4213] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[4214] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[4213] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[4214] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [4215] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [4216] = { 2,	TF,		SEN(pivotroot),			"pivot_root"		},
+ [4217] = { 3,	TM,		SEN(mincore),			"mincore"		},
+@@ -255,7 +255,7 @@
+ [4252] = { 1,	0,		SEN(set_tid_address),		"set_tid_address"	},
+ [4253] = { 0,	0,		SEN(restart_syscall),		"restart_syscall"	},
+ [4254] = { 7,	TD,		SEN(fadvise64_64),		"fadvise64"		},
+-[4255] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[4255] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [4256] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [4257] = { 3,	0,		SEN(timer_create),		"timer_create"		},
+ [4258] = { 4,	0,		SEN(timer_settime),		"timer_settime"		},
+@@ -293,7 +293,7 @@
+ [4290] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [4291] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [4292] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[4293] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[4293] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [4294] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [4295] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [4296] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/powerpc/syscallent.h b/linux/powerpc/syscallent.h
+index 1431f8a..dc71718 100644
+--- a/linux/powerpc/syscallent.h
++++ b/linux/powerpc/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -221,8 +221,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_4koff),		"mmap2"			},
+ [193] = { 4,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 4,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 5,	0,		SEN(printargs),			"pciconfig_read"	},
+ [199] = { 5,	0,		SEN(printargs),			"pciconfig_write"	},
+@@ -278,7 +278,7 @@
+ [249] = { 2,	0,		SEN(printargs),			"swapcontext"		},
+ [250] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [251] = { 2,	TF,		SEN(utimes),			"utimes"		},
+-[252] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[252] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [253] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [254] = { 6,	TD,		SEN(fadvise64_64),		"fadvise64_64"		},
+ [255] = { 1,	0,		SEN(printargs),			"rtas"			},
+@@ -317,7 +317,7 @@
+ [288] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [289] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [290] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[291] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[291] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [292] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [293] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [294] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/powerpc64/syscallent.h b/linux/powerpc64/syscallent.h
+index eae3b57..331792d 100644
+--- a/linux/powerpc64/syscallent.h
++++ b/linux/powerpc64/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -273,7 +273,7 @@
+ [249] = { 2,	0,		SEN(printargs),			"swapcontext"		},
+ [250] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [251] = { 2,	TF,		SEN(utimes),			"utimes"		},
+-[252] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[252] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [253] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [254] = { },
+ [255] = { 1,	0,		SEN(printargs),			"rtas"			},
+@@ -312,7 +312,7 @@
+ [288] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [289] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [290] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[291] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[291] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [292] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [293] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [294] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/s390/syscallent.h b/linux/s390/syscallent.h
+index c04353c..92310d7 100644
+--- a/linux/s390/syscallent.h
++++ b/linux/s390/syscallent.h
+@@ -90,7 +90,7 @@
+ [ 59] = { },
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -127,15 +127,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { },
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { },
+ [110] = { 4,	0,		SEN(lookup_dcookie),		"lookup_dcookie"	},
+@@ -223,8 +223,8 @@
+ [192] = { 1,	TD|TM|SI,	SEN(old_mmap_pgoff),		"mmap2"			},
+ [193] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"lchown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -293,7 +293,7 @@
+ [262] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+ [263] = { 5,	0,		SEN(vserver),			"vserver"		},
+ [264] = { 6,	TD,		SEN(fadvise64_64),		"fadvise64_64"		},
+-[265] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[265] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [266] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [267] = { 5,	TM|SI,		SEN(remap_file_pages),		"remap_file_pages"	},
+ [268] = { 6,	TM,		SEN(mbind),			"mbind"			},
+@@ -321,7 +321,7 @@
+ [290] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [291] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [292] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[293] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[293] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [294] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [295] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [296] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/s390x/syscallent.h b/linux/s390x/syscallent.h
+index ab8a5d8..6dbc7ae 100644
+--- a/linux/s390x/syscallent.h
++++ b/linux/s390x/syscallent.h
+@@ -89,7 +89,7 @@
+ [ 59] = { },
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -121,15 +121,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { },
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { },
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { },
+ [110] = { 3,	0,		SEN(lookup_dcookie),		"lookup_dcookie"	},
+@@ -277,7 +277,7 @@
+ [262] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+ [263] = { 5,	0,		SEN(vserver),			"vserver"		},
+ [264] = { },
+-[265] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[265] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [266] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [267] = { 5,	TM|SI,		SEN(remap_file_pages),		"remap_file_pages"	},
+ [268] = { 6,	TM,		SEN(mbind),			"mbind"			},
+@@ -305,7 +305,7 @@
+ [290] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [291] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [292] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[293] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[293] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [294] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [295] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [296] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/sh/syscallent.h b/linux/sh/syscallent.h
+index 1388416..2634421 100644
+--- a/linux/sh/syscallent.h
++++ b/linux/sh/syscallent.h
+@@ -90,7 +90,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -127,15 +127,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -222,8 +222,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_4koff),		"mmap2"			},
+ [193] = { 3,	TF,		SEN(truncate64),		"truncate64"		},
+ [194] = { 3,	TD,		SEN(ftruncate64),		"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"lchown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -293,7 +293,7 @@
+ [265] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [266] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [267] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[268] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[268] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [269] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [270] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [271] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -325,7 +325,7 @@
+ [297] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [298] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [299] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[300] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[300] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [301] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [302] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [303] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/sh64/syscallent.h b/linux/sh64/syscallent.h
+index e935104..eb19d1a 100644
+--- a/linux/sh64/syscallent.h
++++ b/linux/sh64/syscallent.h
+@@ -88,7 +88,7 @@
+ [ 59] = { 1,	0,		SEN(oldolduname),		"oldolduname"		},
+ [ 60] = { 1,	NF,		SEN(umask),			"umask"			},
+ [ 61] = { 1,	TF,		SEN(chroot),			"chroot"		},
+-[ 62] = { 2,	0,		SEN(ustat),			"ustat"			},
++[ 62] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [ 63] = { 2,	TD,		SEN(dup2),			"dup2"			},
+ [ 64] = { 0,	NF,		SEN(getppid),			"getppid"		},
+ [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
+@@ -125,15 +125,15 @@
+ [ 96] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+ [ 97] = { 3,	0,		SEN(setpriority),		"setpriority"		},
+ [ 98] = { 4,	0,		SEN(profil),			"profil"		},
+-[ 99] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[ 99] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [100] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [101] = { 3,	0,		SEN(ioperm),			"ioperm"		},
+ [102] = { 2,	TD,		SEN(socketcall),		"socketcall"		},
+ [103] = { 3,	0,		SEN(syslog),			"syslog"		},
+ [104] = { 3,	0,		SEN(setitimer),			"setitimer"		},
+ [105] = { 2,	0,		SEN(getitimer),			"getitimer"		},
+-[106] = { 2,	TF,		SEN(stat),			"stat"			},
+-[107] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[106] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[107] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [108] = { 2,	TD,		SEN(fstat),			"fstat"			},
+ [109] = { 1,	0,		SEN(olduname),			"olduname"		},
+ [110] = { 1,	0,		SEN(iopl),			"iopl"			},
+@@ -220,8 +220,8 @@
+ [192] = { 6,	TD|TM|SI,	SEN(mmap_4koff),		"mmap2"			},
+ [193] = { 2,	TF,		SEN(truncate),			"truncate64"		},
+ [194] = { 2,	TD,		SEN(ftruncate),			"ftruncate64"		},
+-[195] = { 2,	TF,		SEN(stat64),			"stat64"		},
+-[196] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[195] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
++[196] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [197] = { 2,	TD,		SEN(fstat64),			"fstat64"		},
+ [198] = { 3,	TF,		SEN(chown),			"lchown32"		},
+ [199] = { 0,	NF,		SEN(getuid),			"getuid32"		},
+@@ -319,7 +319,7 @@
+ [293] = { 2,	0,		SEN(clock_gettime),		"clock_gettime"		},
+ [294] = { 2,	0,		SEN(clock_getres),		"clock_getres"		},
+ [295] = { 4,	0,		SEN(clock_nanosleep),		"clock_nanosleep"	},
+-[296] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[296] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [297] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [298] = { 3,	TS,		SEN(tgkill),			"tgkill"		},
+ [299] = { 2,	TF,		SEN(utimes),			"utimes"		},
+@@ -351,7 +351,7 @@
+ [325] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [326] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [327] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[328] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[328] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [329] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [330] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [331] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/sparc/syscallent.h b/linux/sparc/syscallent.h
+index 30d8819..8d3f025 100644
+--- a/linux/sparc/syscallent.h
++++ b/linux/sparc/syscallent.h
+@@ -36,9 +36,9 @@
+ [ 35] = { 3,	TF,		SEN(chown),			"chown32"		},
+ [ 36] = { 0,	0,		SEN(sync),			"sync"			},
+ [ 37] = { 2,	TS,		SEN(kill),			"kill"			},
+-[ 38] = { 2,	TF,		SEN(stat),			"stat"			},
++[ 38] = { 2,	TF|TST,		SEN(stat),			"stat"			},
+ [ 39] = { 4,	TD|TN,		SEN(sendfile),			"sendfile"		},
+-[ 40] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[ 40] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [ 41] = { 1,	TD,		SEN(dup),			"dup"			},
+ [ 42] = { 0,	TD,		SEN(pipe),			"pipe"			},
+ [ 43] = { 1,	0,		SEN(times),			"times"			},
+@@ -130,14 +130,14 @@
+ [129] = { 2,	TF,		SEN(truncate),			"truncate"		},
+ [130] = { 2,	TD,		SEN(ftruncate),			"ftruncate"		},
+ [131] = { 2,	TD,		SEN(flock),			"flock"			},
+-[132] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[132] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [133] = { 6,	TN,		SEN(sendto),			"sendto"		},
+ [134] = { 2,	TN,		SEN(shutdown),			"shutdown"		},
+ [135] = { 4,	TN,		SEN(socketpair),		"socketpair"		},
+ [136] = { 2,	TF,		SEN(mkdir),			"mkdir"			},
+ [137] = { 1,	TF,		SEN(rmdir),			"rmdir"			},
+ [138] = { 2,	TF,		SEN(utimes),			"utimes"		},
+-[139] = { 2,	TF,		SEN(stat64),			"stat64"		},
++[139] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
+ [140] = { 4,	TD|TN,		SEN(sendfile64),		"sendfile64"		},
+ [141] = { 3,	TN,		SEN(getpeername),		"getpeername"		},
+ [142] = { 6,	0,		SEN(futex),			"futex"			},
+@@ -155,7 +155,7 @@
+ [154] = { 3,	TD,		SEN(getdents64),		"getdents64"		},
+ [155] = { 3,	TD,		SEN(fcntl64),			"fcntl64"		},
+ [156] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
+-[157] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[157] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [158] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [159] = { 1,	TF,		SEN(umount),			"umount"		},
+ [160] = { 3,	TSC,		SEN(sched_setaffinity),		"sched_set_affinity"	},
+@@ -166,7 +166,7 @@
+ [165] = { 4,	TF,		SEN(quotactl),			"quotactl"		},
+ [166] = { 1,	0,		SEN(set_tid_address),		"set_tid_address"	},
+ [167] = { 5,	TF,		SEN(mount),			"mount"			},
+-[168] = { 2,	0,		SEN(ustat),			"ustat"			},
++[168] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [169] = { 5,	TF,		SEN(setxattr),			"setxattr"		},
+ [170] = { 5,	TF,		SEN(setxattr),			"lsetxattr"		},
+ [171] = { 5,	TD,		SEN(fsetxattr),			"fsetxattr"		},
+@@ -200,7 +200,7 @@
+ [199] = { 0,	TS,		SEN(siggetmask),		"sgetmask"		},
+ [200] = { 1,	TS,		SEN(sigsetmask),		"ssetmask"		},
+ [201] = { 3,	TS,		SEN(sigsuspend),		"sigsuspend"		},
+-[202] = { 2,	TF,		SEN(lstat),			"oldlstat"		},
++[202] = { 2,	TF|TST,		SEN(lstat),			"oldlstat"		},
+ [203] = { 1,	TF,		SEN(uselib),			"uselib"		},
+ [204] = { 3,	TD,		SEN(readdir),			"readdir"		},
+ [205] = { 4,	TD,		SEN(readahead),			"readahead"		},
+@@ -232,7 +232,7 @@
+ [231] = { 1,	0,		SEN(time),			"time"			},
+ [232] = { 6,	TD,		SEN(splice),			"splice"		},
+ [233] = { 1,	0,		SEN(stime),			"stime"			},
+-[234] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[234] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [235] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [236] = { 5,	TD,		SEN(llseek),			"_llseek"		},
+ [237] = { 2,	TM,		SEN(mlock),			"mlock"			},
+@@ -287,7 +287,7 @@
+ [286] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [287] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [288] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[289] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[289] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [290] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [291] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [292] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/sparc64/syscallent.h b/linux/sparc64/syscallent.h
+index 1137a3e..2445603 100644
+--- a/linux/sparc64/syscallent.h
++++ b/linux/sparc64/syscallent.h
+@@ -35,9 +35,9 @@
+ [ 35] = { },
+ [ 36] = { 0,	0,		SEN(sync),			"sync"			},
+ [ 37] = { 2,	TS,		SEN(kill),			"kill"			},
+-[ 38] = { 2,	TF,		SEN(stat),			"stat"			},
++[ 38] = { 2,	TF|TST,		SEN(stat),			"stat"			},
+ [ 39] = { 4,	TD|TN,		SEN(sendfile),			"sendfile"		},
+-[ 40] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[ 40] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [ 41] = { 1,	TD,		SEN(dup),			"dup"			},
+ [ 42] = { 0,	TD,		SEN(pipe),			"pipe"			},
+ [ 43] = { 1,	0,		SEN(times),			"times"			},
+@@ -128,14 +128,14 @@
+ [129] = { 2,	TF,		SEN(truncate),			"truncate"		},
+ [130] = { 2,	TD,		SEN(ftruncate),			"ftruncate"		},
+ [131] = { 2,	TD,		SEN(flock),			"flock"			},
+-[132] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[132] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [133] = { 6,	TN,		SEN(sendto),			"sendto"		},
+ [134] = { 2,	TN,		SEN(shutdown),			"shutdown"		},
+ [135] = { 4,	TN,		SEN(socketpair),		"socketpair"		},
+ [136] = { 2,	TF,		SEN(mkdir),			"mkdir"			},
+ [137] = { 1,	TF,		SEN(rmdir),			"rmdir"			},
+ [138] = { 2,	TF,		SEN(utimes),			"utimes"		},
+-[139] = { 2,	TF,		SEN(stat64),			"stat64"		},
++[139] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
+ [140] = { 4,	TD|TN,		SEN(sendfile64),		"sendfile64"		},
+ [141] = { 3,	TN,		SEN(getpeername),		"getpeername"		},
+ [142] = { 6,	0,		SEN(futex),			"futex"			},
+@@ -153,7 +153,7 @@
+ [154] = { 3,	TD,		SEN(getdents64),		"getdents64"		},
+ [155] = { },
+ [156] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
+-[157] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[157] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [158] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [159] = { 1,	TF,		SEN(umount),			"umount"		},
+ [160] = { 3,	TSC,		SEN(sched_setaffinity),		"sched_set_affinity"	},
+@@ -164,7 +164,7 @@
+ [165] = { 4,	TF,		SEN(quotactl),			"quotactl"		},
+ [166] = { 1,	0,		SEN(set_tid_address),		"set_tid_address"	},
+ [167] = { 5,	TF,		SEN(mount),			"mount"			},
+-[168] = { 2,	0,		SEN(ustat),			"ustat"			},
++[168] = { 2,	TST,		SEN(ustat),			"ustat"			},
+ [169] = { 5,	TF,		SEN(setxattr),			"setxattr"		},
+ [170] = { 5,	TF,		SEN(setxattr),			"lsetxattr"		},
+ [171] = { 5,	TD,		SEN(fsetxattr),			"fsetxattr"		},
+@@ -198,7 +198,7 @@
+ [199] = { 0,	TS,		SEN(siggetmask),		"sgetmask"		},
+ [200] = { 1,	TS,		SEN(sigsetmask),		"ssetmask"		},
+ [201] = { 3,	TS,		SEN(sigsuspend),		"sigsuspend"		},
+-[202] = { 2,	TF,		SEN(lstat),			"oldlstat"		},
++[202] = { 2,	TF|TST,		SEN(lstat),			"oldlstat"		},
+ [203] = { 1,	TF,		SEN(uselib),			"uselib"		},
+ [204] = { 3,	TD,		SEN(readdir),			"readdir"		},
+ [205] = { 3,	TD,		SEN(readahead),			"readahead"		},
+@@ -230,7 +230,7 @@
+ [231] = { },
+ [232] = { 6,	TD,		SEN(splice),			"splice"		},
+ [233] = { 1,	0,		SEN(stime),			"stime"			},
+-[234] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[234] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [235] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [236] = { 5,	TD,		SEN(llseek),			"_llseek"		},
+ [237] = { 2,	TM,		SEN(mlock),			"mlock"			},
+@@ -285,7 +285,7 @@
+ [286] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [287] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [288] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[289] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[289] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [290] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [291] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [292] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/x32/syscallent.h b/linux/x32/syscallent.h
+index 2699bc0..8d87d6c 100644
+--- a/linux/x32/syscallent.h
++++ b/linux/x32/syscallent.h
+@@ -2,9 +2,9 @@
+ [  1] = { 3,	TD,		SEN(write),			"write"			},
+ [  2] = { 3,	TD|TF,		SEN(open),			"open"			},
+ [  3] = { 1,	TD,		SEN(close),			"close"			},
+-[  4] = { 2,	TF,		SEN(stat),			"stat"			},
++[  4] = { 2,	TF|TST,		SEN(stat),			"stat"			},
+ [  5] = { 2,	TD,		SEN(fstat),			"fstat"			},
+-[  6] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[  6] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [  7] = { 3,	TD,		SEN(poll),			"poll"			},
+ [  8] = { 3,	TD,		SEN(lseek),			"lseek"			},
+ [  9] = { 6,	TD|TM|SI,	SEN(mmap),			"mmap"			},
+@@ -134,8 +134,8 @@
+ [133] = { 3,	TF,		SEN(mknod),			"mknod"			},
+ [134] = { 1,	TF,		SEN(printargs),			"64:uselib"		},
+ [135] = { 1,	NF,		SEN(personality),		"personality"		},
+-[136] = { 2,	0,		SEN(ustat),			"ustat"			},
+-[137] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[136] = { 2,	TST,		SEN(ustat),			"ustat"			},
++[137] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [138] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [139] = { 3,	0,		SEN(sysfs),			"sysfs"			},
+ [140] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+@@ -260,7 +260,7 @@
+ [259] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [260] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [261] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[262] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[262] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [263] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [264] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [265] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/x86_64/syscallent.h b/linux/x86_64/syscallent.h
+index a1a268e..1bbdf4c 100644
+--- a/linux/x86_64/syscallent.h
++++ b/linux/x86_64/syscallent.h
+@@ -2,9 +2,9 @@
+ [  1] = { 3,	TD,		SEN(write),			"write"			},
+ [  2] = { 3,	TD|TF,		SEN(open),			"open"			},
+ [  3] = { 1,	TD,		SEN(close),			"close"			},
+-[  4] = { 2,	TF,		SEN(stat),			"stat"			},
++[  4] = { 2,	TF|TST,		SEN(stat),			"stat"			},
+ [  5] = { 2,	TD,		SEN(fstat),			"fstat"			},
+-[  6] = { 2,	TF,		SEN(lstat),			"lstat"			},
++[  6] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
+ [  7] = { 3,	TD,		SEN(poll),			"poll"			},
+ [  8] = { 3,	TD,		SEN(lseek),			"lseek"			},
+ [  9] = { 6,	TD|TM|SI,	SEN(mmap),			"mmap"			},
+@@ -134,8 +134,8 @@
+ [133] = { 3,	TF,		SEN(mknod),			"mknod"			},
+ [134] = { 1,	TF,		SEN(uselib),			"uselib"		},
+ [135] = { 1,	NF,		SEN(personality),		"personality"		},
+-[136] = { 2,	0,		SEN(ustat),			"ustat"			},
+-[137] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[136] = { 2,	TST,		SEN(ustat),			"ustat"			},
++[137] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [138] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+ [139] = { 3,	0,		SEN(sysfs),			"sysfs"			},
+ [140] = { 2,	0,		SEN(getpriority),		"getpriority"		},
+@@ -260,7 +260,7 @@
+ [259] = { 4,	TD|TF,		SEN(mknodat),			"mknodat"		},
+ [260] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [261] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[262] = { 4,	TD|TF,		SEN(newfstatat),		"newfstatat"		},
++[262] = { 4,	TD|TF|TST,		SEN(newfstatat),		"newfstatat"		},
+ [263] = { 3,	TD|TF,		SEN(unlinkat),			"unlinkat"		},
+ [264] = { 4,	TD|TF,		SEN(renameat),			"renameat"		},
+ [265] = { 5,	TD|TF,		SEN(linkat),			"linkat"		},
+diff --git a/linux/xtensa/syscallent.h b/linux/xtensa/syscallent.h
+index 63995bc..dfcb630 100644
+--- a/linux/xtensa/syscallent.h
++++ b/linux/xtensa/syscallent.h
+@@ -39,11 +39,11 @@
+ [ 43] = { 2,	TF,		SEN(getcwd),			"getcwd"		},
+ [ 44] = { 2,	TF,		SEN(chmod),			"chmod"			},
+ [ 45] = { 3,	TF,		SEN(chown),			"chown"			},
+-[ 46] = { 2,	TF,		SEN(stat),			"stat"			},
+-[ 47] = { 2,	TF,		SEN(stat64),			"stat64"		},
++[ 46] = { 2,	TF|TST,		SEN(stat),			"stat"			},
++[ 47] = { 2,	TF|TST,		SEN(stat64),			"stat64"		},
+ [ 48] = { 3,	TF,		SEN(chown),			"lchown"		},
+-[ 49] = { 2,	TF,		SEN(lstat),			"lstat"			},
+-[ 50] = { 2,	TF,		SEN(lstat64),			"lstat64"		},
++[ 49] = { 2,	TF|TST,		SEN(lstat),			"lstat"			},
++[ 50] = { 2,	TF|TST,		SEN(lstat64),			"lstat64"		},
+ [ 51] = { },
+ [ 52] = { 2,	TD,		SEN(fchmod),			"fchmod"		},
+ [ 53] = { 3,	TD,		SEN(fchown),			"fchown"		},
+@@ -175,10 +175,10 @@
+ [180] = { 1,	NF,		SEN(setfsuid),			"setfsuid"		},
+ [181] = { 1,	NF,		SEN(setfsgid),			"setfsgid"		},
+ [182] = { 3,	0,		SEN(sysfs),			"sysfs"			},
+-[183] = { 2,	0,		SEN(ustat),			"ustat"			},
+-[184] = { 2,	TF,		SEN(statfs),			"statfs"		},
++[183] = { 2,	TST,		SEN(ustat),			"ustat"			},
++[184] = { 2,	TF|TST,		SEN(statfs),			"statfs"		},
+ [185] = { 2,	TD,		SEN(fstatfs),			"fstatfs"		},
+-[186] = { 3,	TF,		SEN(statfs64),			"statfs64"		},
++[186] = { 3,	TF|TST,		SEN(statfs64),			"statfs64"		},
+ [187] = { 3,	TD,		SEN(fstatfs64),			"fstatfs64"		},
+ [188] = { 2,	0,		SEN(setrlimit),			"setrlimit"		},
+ [189] = { 2,	0,		SEN(getrlimit),			"getrlimit"		},
+@@ -288,7 +288,7 @@
+ [296] = { 4,	TD|TF,		SEN(utimensat),			"utimensat"		},
+ [297] = { 5,	TD|TF,		SEN(fchownat),			"fchownat"		},
+ [298] = { 3,	TD|TF,		SEN(futimesat),			"futimesat"		},
+-[299] = { 4,	TD|TF,		SEN(fstatat64),			"fstatat64"		},
++[299] = { 4,	TD|TF|TST,		SEN(fstatat64),			"fstatat64"		},
+ [300] = { 3,	TD|TF,		SEN(fchmodat),			"fchmodat"		},
+ [301] = { 3,	TD|TF,		SEN(faccessat),			"faccessat"		},
+ [302 ... 303] = { },
+diff --git a/qualify.c b/qualify.c
+index b5023f2..4b9f20d 100644
+--- a/qualify.c
++++ b/qualify.c
+@@ -220,6 +220,8 @@ lookup_class(const char *s)
+ 		{ "%ipc",	TRACE_IPC	},
+ 		{ "%network",	TRACE_NETWORK	},
+ 		{ "%sched",	TRACE_SCHED	},
++		{ "%stat",	TRACE_STAT	},
++
+ 	};
+ 
+ 	unsigned int i;
+diff --git a/strace.1 b/strace.1
+index 9b69ec2..9d303d1 100644
+--- a/strace.1
++++ b/strace.1
+@@ -429,6 +429,9 @@ Trace all memory mapping related system calls.
+ .BR "\-e\ trace" = %sched
+ Trace all scheduler-related (sched_*) system calls.
+ .TP
++.BR "\-e\ trace" = %stat
++Trace all stat-like (*stat*) system calls.
++.TP
+ \fB\-e\ abbrev\fR=\,\fIset\fR
+ Abbreviate the output from printing each member of large structures.
+ The default is
+diff --git a/syscall.c b/syscall.c
+index 569055f..42e08d2 100644
+--- a/syscall.c
++++ b/syscall.c
+@@ -77,6 +77,7 @@
+ #define TS TRACE_SIGNAL
+ #define TM TRACE_MEMORY
+ #define TSC TRACE_SCHED
++#define TST	TRACE_STAT
+ #define NF SYSCALL_NEVER_FAILS
+ #define MA MAX_ARGS
+ #define SI STACKTRACE_INVALIDATE_CACHE
+@@ -113,6 +114,7 @@ static const struct_sysent sysent2[] = {
+ #undef TS
+ #undef TM
+ #undef TSC
++#undef TST
+ #undef NF
+ #undef MA
+ #undef SI
+diff --git a/sysent.h b/sysent.h
+index f4eaa93..e606028 100644
+--- a/sysent.h
++++ b/sysent.h
+@@ -22,5 +22,5 @@ typedef struct sysent {
+ #define TRACE_INDIRECT_SUBCALL	02000	/* Syscall is an indirect socket/ipc subcall. */
+ #define COMPAT_SYSCALL_TYPES	04000	/* A compat syscall that uses compat types. */
+ #define TRACE_SCHED		010000  /* Trace scheduler-related syscalls. */
+-
++#define TRACE_STAT		040000  /* Trace stat-like syscalls.	*/
+ #endif /* !STRACE_SYSENT_H */
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index 5a7a45f..35c3a24 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -731,6 +731,7 @@ DECODER_TESTS = \
+ 	rt_sigtimedwait.test \
+ 	rt_tgsigqueueinfo.test \
+ 	sched.test \
++	stat.test \
+ 	sched_get_priority_mxx.test \
+ 	sched_rr_get_interval.test \
+ 	sched_xetaffinity.test \
+diff --git a/tests/ksysent.c b/tests/ksysent.c
+index 252feff..c6c29b4 100644
+--- a/tests/ksysent.c
++++ b/tests/ksysent.c
+@@ -41,6 +41,7 @@
+ #define TS 0
+ #define TM 0
+ #define TSC 0
++#define TST 0
+ #define NF 0
+ #define MA 0
+ #define SI 0
+diff --git a/tests/nsyscalls.c b/tests/nsyscalls.c
+index c2bdb20..f6c1680 100644
+--- a/tests/nsyscalls.c
++++ b/tests/nsyscalls.c
+@@ -42,6 +42,7 @@
+ #define TS 0
+ #define TM 0
+ #define TSC 0
++#define TST 0
+ #define NF 0
+ #define MA 0
+ #define SI 0
+diff --git a/tests/sched.test b/tests/sched.test
+index d111aa3..e7fe180 100755
+--- a/tests/sched.test
++++ b/tests/sched.test
+@@ -36,7 +36,7 @@ SCHED_TESTS='28 sched_xetaffinity
+ 14 sched_yield'
+ 
+ NON_SCHED_TESTS='11 fchdir
+-28 futex
++27 futex
+ 10 fsync'
+ 
+ . "${srcdir=.}/init.sh"
+diff --git a/tests/stat.test b/tests/stat.test
+old mode 100755
+new mode 100644
+diff --git a/tests/stat_like.test b/tests/stat_like.test
+new file mode 100755
+index 0000000..6e4482b
+--- /dev/null
++++ b/tests/stat_like.test
+@@ -0,0 +1,58 @@
++#!/bin/sh
++
++# Check how stat-like syscalls are traced.
++#
++# Copyright (c) 2017 The strace developers.
++# All rights reserved.
++#
++# Redistribution and use in source and binary forms, with or without
++# modification, are permitted provided that the following conditions
++# are met:
++# 1. Redistributions of source code must retain the above copyright
++#    notice, this list of conditions and the following disclaimer.
++# 2. Redistributions in binary form must reproduce the above copyright
++#    notice, this list of conditions and the following disclaimer in the
++#    documentation and/or other materials provided with the distribution.
++# 3. The name of the author may not be used to endorse or promote products
++#    derived from this software without specific prior written permission.
++#
++# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
++# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
++# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
++# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
++# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
++# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++
++SCHED_TESTS='21 fstat
++33 ustat
++32 statx
++17 statfs
++21 oldfstat'
++
++NON_SCHED_TESTS='11 fchdir
++27 futex
++10 fsync'
++
++. "${srcdir=.}/init.sh"
++
++echo "$SCHED_TESTS" | while read w i
++do
++	run_prog ./$i > /dev/null
++	run_strace -a$w -e%stat ./$i > "$EXP"
++	match_diff "$LOG" "$EXP"
++done
++
++echo '+++ exited with 0 +++' > "$EXP"
++
++echo "$NON_SCHED_TESTS" | while read w i
++do
++	run_prog ./$i > /dev/null
++	run_strace -a$w -e%sched ./$i > /dev/null
++	match_diff "$LOG" "$EXP"
++done
++
++rm "$EXP"
+-- 
+2.7.4
+

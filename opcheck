@@ -1,0 +1,60 @@
+stat("/sys", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/proc", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/dev", {st_mode=S_IFDIR|0755, st_size=4740, ...}) = 0
+stat("/dev/pts", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/run", {st_mode=S_IFDIR|0755, st_size=1080, ...}) = 0
+stat("/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+stat("/sys/kernel/security", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/dev/shm", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=340, ...}) = 0
+stat("/run/lock", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=120, ...}) = 0
+stat("/sys/fs/cgroup", {st_mode=S_IFDIR|0755, st_size=340, ...}) = 0
+stat("/sys/fs/cgroup/systemd", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/pstore", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/sys/firmware/efi/efivars", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/blkio", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/freezer", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/cpu,cpuacct", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/net_cls,net_prio", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/perf_event", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/cpuset", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/hugetlb", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/pids", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/devices", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/sys/fs/cgroup/memory", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+stat("/proc/sys/fs/binfmt_misc", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/dev/mqueue", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=40, ...}) = 0
+stat("/sys/kernel/debug", {st_mode=S_IFDIR|0700, st_size=0, ...}) = 0
+stat("/dev/hugepages", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/sys/fs/fuse/connections", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/boot/efi", {st_mode=S_IFDIR|0700, st_size=4096, ...}) = 0
+stat("/proc/sys/fs/binfmt_misc", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+stat("/run/user/1000", {st_mode=S_IFDIR|0700, st_size=260, ...}) = 0
+stat("/run/user/1000/gvfs", {st_mode=S_IFDIR|0500, st_size=0, ...}) = 0
+stat("/run/user/108", {st_mode=S_IFDIR|0700, st_size=140, ...}) = 0
+statfs("/dev", {f_type=TMPFS_MAGIC, f_bsize=4096, f_blocks=1005896, f_bfree=1005896, f_bavail=1005896, f_files=1005896, f_ffree=1005315, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_RELATIME}) = 0
+statfs("/run", {f_type=TMPFS_MAGIC, f_bsize=4096, f_blocks=202185, f_bfree=199755, f_bavail=199755, f_files=1010922, f_ffree=1010083, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/", {f_type=EXT2_SUPER_MAGIC, f_bsize=4096, f_blocks=36567692, f_bfree=27002057, f_bavail=25138761, f_files=9297920, f_ffree=8429333, f_fsid={val=[1115994241, 4169434880]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_RELATIME}) = 0
+statfs("/sys/kernel/security", {f_type=SECURITYFS_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/dev/shm", {f_type=TMPFS_MAGIC, f_bsize=4096, f_blocks=1010922, f_bfree=968344, f_bavail=968344, f_files=1010922, f_ffree=1010801, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV}) = 0
+statfs("/run/lock", {f_type=TMPFS_MAGIC, f_bsize=4096, f_blocks=1280, f_bfree=1279, f_bavail=1279, f_files=1010922, f_ffree=1010916, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup", {f_type=TMPFS_MAGIC, f_bsize=4096, f_blocks=1010922, f_bfree=1010922, f_bavail=1010922, f_files=1010922, f_ffree=1010906, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_RDONLY|ST_NOSUID|ST_NODEV|ST_NOEXEC}) = 0
+statfs("/sys/fs/cgroup/systemd", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/pstore", {f_type=PSTOREFS_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/firmware/efi/efivars", {f_type=EFIVARFS_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/blkio", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/freezer", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/cpu,cpuacct", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/net_cls,net_prio", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/perf_event", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/cpuset", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/hugetlb", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/pids", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/devices", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/sys/fs/cgroup/memory", {f_type=CGROUP_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_NOEXEC|ST_RELATIME}) = 0
+statfs("/proc/sys/fs/binfmt_misc", {f_type=BINFMTFS_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_RELATIME}) = 0
+statfs("/dev/hugepages", {f_type=HUGETLBFS_MAGIC, f_bsize=2097152, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=2097152, f_flags=ST_VALID|ST_RELATIME}) = 0
+statfs("/boot/efi", {f_type=MSDOS_SUPER_MAGIC, f_bsize=4096, f_blocks=130812, f_bfree=129891, f_bavail=129891, f_files=0, f_ffree=0, f_fsid={val=[2049, 0]}, f_namelen=1530, f_frsize=4096, f_flags=ST_VALID|ST_RELATIME}) = 0
+statfs("/run/user/1000", {f_type=TMPFS_MAGIC, f_bsize=4096, f_blocks=202185, f_bfree=202165, f_bavail=202165, f_files=1010922, f_ffree=1010887, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_RELATIME}) = 0
+statfs("/run/user/1000/gvfs", {f_type=FUSE_SUPER_MAGIC, f_bsize=4096, f_blocks=0, f_bfree=0, f_bavail=0, f_files=0, f_ffree=0, f_fsid={val=[0, 0]}, f_namelen=1024, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_RELATIME}) = 0
+statfs("/run/user/108", {f_type=TMPFS_MAGIC, f_bsize=4096, f_blocks=202185, f_bfree=202182, f_bavail=202182, f_files=1010922, f_ffree=1010909, f_fsid={val=[0, 0]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_NOSUID|ST_NODEV|ST_RELATIME}) = 0
++++ exited with 0 +++
