@@ -208,7 +208,7 @@ main(void)
 	static const char full[] = "/dev/full";
 # endif
 	static const char sample[] = TEST_SYSCALL_STR ".sample";
-	STRUCT_STAT st[2];
+	TAIL_ALLOC_OBJECT_CONST_PTR(STRUCT_STAT, st);
 
 	int rc;
 
@@ -237,13 +237,11 @@ main(void)
 # endif
 
 	if ((rc = TEST_SYSCALL_INVOKE(sample, st))) {
-# if OLD_STAT
-		if (errno != EOVERFLOW)
-# endif
-		{
+		if (errno != EOVERFLOW) {
+			rc = (errno == ENOSYS) ? 77 : 1;
 			perror(TEST_SYSCALL_STR);
 			(void) unlink(sample);
-			return 77;
+			return rc;
 		}
 	}
 	(void) unlink(sample);
