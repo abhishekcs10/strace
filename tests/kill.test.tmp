@@ -1,0 +1,4 @@
+kill(9535, SIGALRM) = 0
+kill(-1159983635, -889262067) = -1 ESRCH (No such process)
+kill(9535, SIG_0) = 0
++++ exited with 0 +++

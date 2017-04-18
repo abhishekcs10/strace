@@ -1,0 +1,10 @@
+ioctl(3, SIOCGIFCONF, NULL) = -1 EFAULT (Bad address)
+ioctl(3, SIOCGIFCONF, 0x7f741138f000) = -1 EFAULT (Bad address)
+ioctl(3, SIOCGIFCONF, {ifc_len=3 * sizeof(struct ifreq), ifc_buf=NULL}) = 0
+ioctl(3, SIOCGIFCONF, {ifc_len=0 * sizeof(struct ifreq), ifc_buf=[]}) = 0
+ioctl(3, SIOCGIFCONF, {ifc_len=1 => 0 * sizeof(struct ifreq), ifc_buf=[]}) = 0
+ioctl(3, SIOCGIFCONF, {ifc_len=1 * sizeof(struct ifreq), ifc_buf=[{ifr_name="lo", ifr_addr={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}}]}) = 0
+ioctl(3, SIOCGIFCONF, {ifc_len=2 * sizeof(struct ifreq), ifc_buf=0x7f7411394fd8}) = -1 EFAULT (Bad address)
+ioctl(3, SIOCGIFCONF, {ifc_len=82 => 2 * sizeof(struct ifreq), ifc_buf=[{ifr_name="lo", ifr_addr={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}}, ...]}) = 0
+ioctl(3, SIOCGIFCONF, {ifc_len=124, ifc_buf=0x7f7411394fb0}) = -1 EFAULT (Bad address)
++++ exited with 0 +++

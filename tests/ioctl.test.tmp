@@ -1,0 +1,10 @@
+ioctl(-1, TCGETS, 0x7ffe514d3190) = -1 EBADF (Bad file descriptor)
+ioctl(-1, MMTIMER_GETRES, 0x7ffe514d3188) = -1 EBADF (Bad file descriptor)
+ioctl(-1, VIDIOC_ENUMINPUT, NULL) = -1 EBADF (Bad file descriptor)
+ioctl(-1, HIDIOCGRDESCSIZE or HIDIOCGVERSION, 0x7ffe514d3188) = -1 EBADF (Bad file descriptor)
+ioctl(-1, HIDIOCGPHYS(8), 0x7ffe514d3188) = -1 EBADF (Bad file descriptor)
+ioctl(-1, EVIOCGBIT(EV_KEY, 8), 0x7ffe514d3188) = -1 EBADF (Bad file descriptor)
+ioctl(-1, MIXER_READ(13) or OTPSELECT, [MTD_OTP_OFF]) = -1 EBADF (Bad file descriptor)
+ioctl(-1, _IOC(_IOC_WRITE, 0xde, 0, 0), 0xffffffffffffffff) = -1 EBADF (Bad file descriptor)
+ioctl(-1, _IOC(_IOC_READ, 0xde, 0xad, 0x8), 0x7ffe514d3188) = -1 EBADF (Bad file descriptor)
++++ exited with 0 +++

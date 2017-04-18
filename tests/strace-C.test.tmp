@@ -1,0 +1,7 @@
+nanosleep({tv_sec=1, tv_nsec=0}, NULL) = 0
++++ exited with 0 +++
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+  0.00    0.000000           0         1           nanosleep
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000000                     1           total

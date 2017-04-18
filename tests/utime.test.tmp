@@ -1,0 +1,5 @@
+utime("", NULL) = -1 ENOENT (No such file or directory)
+utime(0x7f71268f3001, 0x7f71268f9000) = -1 EFAULT (Bad address)
+utime(0x7f71268f2ff9, 0x7f71268f9028) = -1 EFAULT (Bad address)
+utime("utime\nfilename", {actime=2017-03-05T00:29:12+0530, modtime=2017-03-05T00:29:12+0530}) = -1 ENOENT (No such file or directory)
++++ exited with 0 +++

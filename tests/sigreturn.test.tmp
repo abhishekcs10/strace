@@ -1,0 +1,6 @@
+rt_sigprocmask(SIG_SETMASK, [USR2 CHLD RT_3 RT_4 RT_5 RT_26 RT_27], NULL, 8) = 0
+rt_sigaction(SIGUSR1, {sa_handler=0x4007a0, sa_mask=[USR1], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7fc0f3b5d4b0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+tgkill(12549, 12549, SIGUSR1)           = 0
+--- SIGUSR1 {si_signo=SIGUSR1, si_code=SI_TKILL, si_pid=12549, si_uid=1000} ---
+rt_sigreturn({mask=[USR2 CHLD RT_3 RT_4 RT_5 RT_26 RT_27]}) = 0
++++ exited with 0 +++

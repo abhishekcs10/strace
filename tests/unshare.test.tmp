@@ -1,0 +1,6 @@
+unshare(0xbadc0ded0000000f /* CLONE_??? */) = -1 EINVAL (Invalid argument)
+unshare(0) = 0
+unshare(CLONE_THREAD|CLONE_FS|CLONE_SIGHAND|CLONE_SYSVSEM|CLONE_NEWUTS|CLONE_NEWIPC|CLONE_NEWNET|CLONE_NEWUSER|CLONE_NEWCGROUP|0x80a8c075) = -1 EINVAL (Invalid argument)
+unshare(CLONE_NEWCGROUP) = -1 EPERM (Operation not permitted)
+unshare(0x81f8f0ff /* CLONE_??? */) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

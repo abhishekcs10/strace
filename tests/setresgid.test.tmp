@@ -1,0 +1,11 @@
+setresgid(1000, 1000, 1000) = 0
+setresgid(1000, 1000, 1000) = 0
+setresgid(1000, 1000, 1000) = 0
+setresgid(1000, 1000, 1000) = 0
+setresgid(-1, 1000, 1000) = 0
+setresgid(1000, -1, 1000) = 0
+setresgid(1000, 1000, -1) = 0
+setresgid(-1, 1000, 1000) = 0
+setresgid(1000, -1, 1000) = 0
+setresgid(1000, 1000, -1) = 0
++++ exited with 0 +++

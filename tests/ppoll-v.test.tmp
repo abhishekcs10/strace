@@ -1,0 +1,5 @@
+ppoll(NULL, 4207869677, NULL, NULL, 16045690984232390125) = -1 EINVAL (Invalid argument)
+ppoll(0x7f8f8973b000, 42, 0x7f8f8973b008, 0x7f8f8973b010, 8) = -1 EFAULT (Bad address)
+ppoll([{fd=3, events=POLLIN|POLLPRI|POLLRDNORM|POLLRDBAND}, {fd=4, events=POLLOUT|POLLWRNORM|POLLWRBAND}, {fd=5, events=POLLIN|POLLPRI}, {fd=6, events=POLLOUT}], 4, {tv_sec=42, tv_nsec=999999999}, [USR2 CHLD], 8) = 2 ([{fd=4, revents=POLLOUT|POLLWRNORM}, {fd=6, revents=POLLOUT}], left {tv_sec=42, tv_nsec=999998641})
+ppoll([{fd=4, events=POLLIN|POLLPRI|POLLRDNORM|POLLRDBAND}, {fd=3, events=POLLOUT|POLLWRNORM|POLLWRBAND}], 2, {tv_sec=0, tv_nsec=999}, ~[HUP KILL STOP], 8) = 0 (Timeout)
++++ exited with 0 +++

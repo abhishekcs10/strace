@@ -1,0 +1,10 @@
+prctl(PR_SET_DUMPABLE, 0x3 /* SUID_DUMP_??? */) = -1 EINVAL (Invalid argument)
+prctl(PR_SET_DUMPABLE, 0xdeadc0de00000001 /* SUID_DUMP_??? */) = -1 EINVAL (Invalid argument)
+prctl(PR_SET_DUMPABLE, 0xdeadc0defacebeef /* SUID_DUMP_??? */) = -1 EINVAL (Invalid argument)
+prctl(PR_SET_DUMPABLE, SUID_DUMP_DISABLE) = 0
+prctl(PR_GET_DUMPABLE) = 0 (SUID_DUMP_DISABLE)
+prctl(PR_SET_DUMPABLE, SUID_DUMP_USER) = 0
+prctl(PR_GET_DUMPABLE) = 1 (SUID_DUMP_USER)
+prctl(PR_SET_DUMPABLE, SUID_DUMP_ROOT) = -1 EINVAL (Invalid argument)
+prctl(PR_GET_DUMPABLE) = 1 (SUID_DUMP_USER)
++++ exited with 0 +++

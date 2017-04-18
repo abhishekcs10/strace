@@ -1,0 +1,6 @@
+prctl(PR_SET_PDEATHSIG, 13464652301225295597) = -1 EINVAL (Invalid argument)
+prctl(PR_SET_PDEATHSIG, SIGINT) = 0
+prctl(PR_GET_PDEATHSIG, NULL) = -1 EFAULT (Bad address)
+prctl(PR_GET_PDEATHSIG, 0x7fde8f4f4000) = -1 EFAULT (Bad address)
+prctl(PR_GET_PDEATHSIG, [SIGINT]) = 0
++++ exited with 0 +++

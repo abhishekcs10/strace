@@ -1,0 +1,4 @@
+getrandom("\x4f\x38\x6b", 3, 0) = 3
+getrandom("\x9e\x11\xe8"..., 4, GRND_NONBLOCK) = 4
+getrandom(0x7fff683a6f30, 4, GRND_NONBLOCK|GRND_RANDOM|0x3000) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

@@ -1,0 +1,4 @@
+sethostname(NULL, 64) = -1 EPERM (Operation not permitted)
+sethostname(NULL, 64) = -1 EPERM (Operation not permitted)
+sethostname(0x7febab49cfbf, 65) = -1 EPERM (Operation not permitted)
++++ exited with 0 +++

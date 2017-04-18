@@ -1,0 +1,4 @@
+stat("stat.sample", 0x7f684c2e1fe0) = -1 EFAULT (Bad address)
+stat("/dev/full", {st_dev=makedev(0, 6), st_ino=9, st_mode=S_IFCHR|0666, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_rdev=makedev(1, 7), st_atime=2017-03-04T11:00:08+0530.093049346, st_mtime=2017-03-04T11:00:08+0530.093049346, st_ctime=2017-03-04T11:00:08+0530.093049346}) = 0
+stat("stat.sample", {st_dev=makedev(8, 2), st_ino=6957369, st_mode=S_IFREG|0640, st_nlink=1, st_uid=1000, st_gid=1000, st_blksize=4096, st_blocks=0, st_size=43147718418, st_atime=1970-01-01T02:29:17+0530.000000135, st_mtime=1970-01-01T02:29:19+0530.000000246, st_ctime=2017-03-05T00:29:09+0530.349161265}) = 0
++++ exited with 0 +++

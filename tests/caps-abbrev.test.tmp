@@ -1,0 +1,12 @@
+capget(NULL, NULL) = -1 EFAULT (Bad address)
+capget(0x7ffb354d9000, 0x7ffb354d2fe8) = -1 EFAULT (Bad address)
+capget(0x7ffb354d8ff8, 0x7ffb354d3000) = -1 EFAULT (Bad address)
+capget(0x7ffb354d8ff8, 0x7ffb354d2fe8) = 0
+capset(NULL, NULL) = -1 EFAULT (Bad address)
+capset(0x7ffb354d9000, 0x7ffb354d2fe8) = -1 EFAULT (Bad address)
+capset(0x7ffb354d8ff8, 0x7ffb354d2ff8) = -1 EINVAL (Invalid argument)
+capset(0x7ffb354d8ff8, 0x7ffb354d2fec) = -1 EFAULT (Bad address)
+capset(0x7ffb354d8ff8, 0x7ffb354d2fe8) = -1 EPERM (Operation not permitted)
+capset(0x7ffb354d8ff8, 0x7ffb354d2fe8) = -1 EPERM (Operation not permitted)
+capset(0x7ffb354d8ff8, 0x7ffb354d2ff4) = -1 EPERM (Operation not permitted)
++++ exited with 0 +++

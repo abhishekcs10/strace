@@ -1,0 +1,25 @@
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f54d5016000
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=172546, ...}) = 0
+mmap(NULL, 172546, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f54d4feb000
+close(3)                                = 0
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\t\2\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=1864888, ...}) = 0
+mmap(NULL, 3967392, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f54d4a2a000
+mmap(0x7f54d4de9000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bf000) = 0x7f54d4de9000
+mmap(0x7f54d4def000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f54d4def000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f54d4fea000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f54d4fe9000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f54d4fe8000
+close(0)                                = 0
+open("/dev/zero", O_RDONLY)             = 0
+pread64(0, "\0\0\0\0", 4, 1004211379570065135) = 4
+preadv(0, [{iov_base="\0\0\0\0", iov_len=4}], 1, 1004211379570065135) = 4
+close(0)                                = 0
+open("/dev/null", O_WRONLY)             = 0
+pwrite64(0, "\0\0\0\0", 4, 1004211379570065135) = 4
+pwritev(0, [{iov_base="\0\0\0\0", iov_len=4}], 1, 1004211379570065135) = 4
+close(0)                                = 0
++++ exited with 0 +++

@@ -1,0 +1,4 @@
+timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC|TFD_NONBLOCK) = 0
+timerfd_settime(0, 0, {it_interval={tv_sec=233811169, tv_nsec=233811170}, it_value={tv_sec=233811171, tv_nsec=233811172}}, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=0, tv_nsec=0}}) = 0
+timerfd_gettime(0, {it_interval={tv_sec=233811169, tv_nsec=233811170}, it_value={tv_sec=233811171, tv_nsec=233776601}}) = 0
++++ exited with 0 +++

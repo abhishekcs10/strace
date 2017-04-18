@@ -1,0 +1,20 @@
+rt_sigprocmask(SIG_SETMASK, NULL, NULL, 128) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_SETMASK, NULL, NULL, 64) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_SETMASK, NULL, NULL, 32) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_SETMASK, NULL, NULL, 16) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_SETMASK, NULL, NULL, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, ~[], [], 8) = 0
+rt_sigprocmask(SIG_SETMASK, 0x7fdd4b161ff0, 0x7fdd4b15bff8, 16) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_UNBLOCK, 0x7fdd4b161ff0, 0x7fdd4b15bff8, 4) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_UNBLOCK, 0x7fdd4b161ff2, 0x7fdd4b15bffa, 2) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_UNBLOCK, 0x7fdd4b161ff3, 0x7fdd4b15bffb, 1) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_UNBLOCK, 0x7fdd4b161ff3, 0x7fdd4b15bffb, 0) = -1 EINVAL (Invalid argument)
+rt_sigprocmask(SIG_BLOCK, [HUP], [], 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, ~[HUP], [HUP], 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, ~[HUP KILL], [HUP], 8) = 0
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT ALRM TERM], [HUP], 8) = 0
+rt_sigprocmask(SIG_SETMASK, NULL, [HUP INT QUIT ALRM TERM], 8) = 0
+rt_sigprocmask(SIG_SETMASK, 0x7fdd4b161ffc, NULL, 8) = -1 EFAULT (Bad address)
+rt_sigprocmask(SIG_SETMASK, [HUP INT QUIT ALRM TERM], 0x7fdd4b15bffc, 8) = -1 EFAULT (Bad address)
++++ exited with 0 +++

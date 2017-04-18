@@ -1,0 +1,4 @@
+nanosleep({tv_sec=0, tv_nsec=222222222}, {tv_sec=0, tv_nsec=111121032}) = ? ERESTART_RESTARTBLOCK (Interrupted by signal)
+--- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
+restart_syscall(<... resuming interrupted nanosleep ...>) = 0
++++ exited with 0 +++

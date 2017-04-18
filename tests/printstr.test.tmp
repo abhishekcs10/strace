@@ -1,0 +1,3 @@
+writev(-1, [{iov_base="\0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\0"..., iov_len=18446744073709551615}], 1) = -1 EBADF (Bad file descriptor)
+writev(-1, [{iov_base="\0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"..., iov_len=18446744073709551615}], 1) = -1 EBADF (Bad file descriptor)
++++ exited with 0 +++

@@ -1,0 +1,5 @@
+utimes("utimes_sample", NULL) = -1 ENOENT (No such file or directory)
+utimes(NULL, 0x7fd89416a000) = -1 EFAULT (Bad address)
+utimes(NULL, [{tv_sec=1488653951, tv_usec=163187}, 0x7fd89416a000]) = -1 EFAULT (Bad address)
+utimes("", [{tv_sec=1488653952, tv_usec=163186}, {tv_sec=1488653951, tv_usec=163187}]) = -1 ENOENT (No such file or directory)
++++ exited with 0 +++

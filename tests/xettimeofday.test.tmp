@@ -1,0 +1,4 @@
+gettimeofday({tv_sec=1488653952, tv_usec=417145}, NULL) = 0
+gettimeofday({tv_sec=1488653952, tv_usec=417260}, {tz_minuteswest=0, tz_dsttime=0}) = 0
+settimeofday({tv_sec=-1, tv_usec=1000000000}, {tz_minuteswest=0, tz_dsttime=0}) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

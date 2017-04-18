@@ -1,0 +1,1 @@
+../strace: invalid fault argument 'chdir:error=1:error=2'

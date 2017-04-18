@@ -1,0 +1,4 @@
+inotify_init1(IN_NONBLOCK|IN_CLOEXEC|0xdea5b6ef) = -1 EINVAL (Invalid argument)
+inotify_init1(0xff96b77b /* IN_??? */) = -1 EINVAL (Invalid argument)
+inotify_init1(IN_NONBLOCK|IN_CLOEXEC) = 3
++++ exited with 0 +++

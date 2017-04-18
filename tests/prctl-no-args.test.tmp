@@ -1,0 +1,7 @@
+prctl(PR_GET_KEEPCAPS) = 0
+prctl(PR_GET_TIMING) = 0
+prctl(PR_GET_SECCOMP) = 0
+prctl(PR_GET_TIMERSLACK) = 50000
+prctl(PR_TASK_PERF_EVENTS_DISABLE) = 0
+prctl(PR_TASK_PERF_EVENTS_ENABLE) = 0
++++ exited with 0 +++

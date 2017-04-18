@@ -1,0 +1,4 @@
+getcpu(NULL, NULL, NULL) = 0
+getcpu(0x7fe1b4cba000, 0x7fe1b4cb4000, 0x7fe1b4cae000) = -1 EFAULT (Bad address)
+getcpu([2], [0], 0x7fe1b4c9bf80) = 0
++++ exited with 0 +++

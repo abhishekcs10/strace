@@ -1,0 +1,11 @@
+clock_nanosleep(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=789985}, NULL) = 0
+clock_nanosleep(CLOCK_REALTIME, 0, NULL, 0x7ffec71838a0) = -1 EFAULT (Bad address)
+clock_nanosleep(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=789985}, 0x7ffec71838a0) = 0
+clock_nanosleep(CLOCK_MONOTONIC, 0, {tv_sec=0, tv_nsec=1000000000}, 0x7ffec71838a0) = -1 EINVAL (Invalid argument)
+setitimer(ITIMER_REAL, {it_interval={tv_sec=0, tv_usec=222222}, it_value={tv_sec=0, tv_usec=111111}}, NULL) = 0
+clock_nanosleep(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=999999999}, {tv_sec=0, tv_nsec=888951432}) = ? ERESTART_RESTARTBLOCK (Interrupted by signal)
+--- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
+clock_gettime(CLOCK_REALTIME, {tv_sec=1488653940, tv_nsec=655726440}) = 0
+clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, {tv_sec=1488653941, tv_nsec=655726440}, 0x7ffec71838a0) = ? ERESTARTNOHAND (To be restarted if no handler)
+--- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
++++ exited with 0 +++

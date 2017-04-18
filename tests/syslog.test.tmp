@@ -1,0 +1,2 @@
+syslog(SYSLOG_ACTION_READ, 0xfacefeeddeadbeef, -1) = -1 EPERM (Operation not permitted)
++++ exited with 0 +++

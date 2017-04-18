@@ -1,0 +1,2 @@
+epoll_pwait(-1, 0x7f3d75befff4, 1, -2, 0x7ffc6020f720, 256) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

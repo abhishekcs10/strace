@@ -1,0 +1,5 @@
+getresgid([1000], [1000], [1000]) = 0
+getresgid(NULL, 0x7ff4a545effc, 0x7ff4a5458ffc) = -1 EFAULT (Bad address)
+getresgid(0x7ff4a5464ffc, NULL, 0x7ff4a5458ffc) = -1 EFAULT (Bad address)
+getresgid(0x7ff4a5464ffc, 0x7ff4a545effc, NULL) = -1 EFAULT (Bad address)
++++ exited with 0 +++

@@ -1,0 +1,3 @@
+mlockall(0) = -1 EINVAL (Invalid argument)
+mlockall(MCL_CURRENT) = -1 ENOMEM (Cannot allocate memory)
++++ exited with 0 +++

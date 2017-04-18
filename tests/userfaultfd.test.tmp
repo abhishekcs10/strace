@@ -1,0 +1,2 @@
+userfaultfd(O_NONBLOCK|O_CLOEXEC|0x1) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

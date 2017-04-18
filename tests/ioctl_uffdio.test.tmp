@@ -1,0 +1,19 @@
+ioctl(-1, UFFDIO_API, {api=0, features=0}) = -1 EBADF (Bad file descriptor)
+ioctl(3, UFFDIO_API, NULL) = -1 EFAULT (Bad address)
+ioctl(3, UFFDIO_API, {api=0xaa, features=0, features.out=0, ioctls=1<<_UFFDIO_REGISTER|1<<_UFFDIO_UNREGISTER|1<<_UFFDIO_API}) = 0
+ioctl(-1, UFFDIO_REGISTER, {range={start=0, len=0}, mode=0}) = -1 EBADF (Bad file descriptor)
+ioctl(3, UFFDIO_REGISTER, NULL) = -1 EFAULT (Bad address)
+ioctl(3, UFFDIO_REGISTER, {range={start=0x7f3dd2640000, len=0x1000}, mode=UFFDIO_REGISTER_MODE_MISSING, ioctls=1<<_UFFDIO_WAKE|1<<_UFFDIO_COPY|1<<_UFFDIO_ZEROPAGE}) = 0
+ioctl(-1, UFFDIO_COPY, {dst=0, src=0, len=0, mode=0}) = -1 EBADF (Bad file descriptor)
+ioctl(3, UFFDIO_COPY, NULL) = -1 EFAULT (Bad address)
+ioctl(3, UFFDIO_COPY, {dst=0x7f3dd2640000, src=0x7f3dd2642000, len=0x1000, mode=UFFDIO_COPY_MODE_DONTWAKE, copy=0x1000}) = 0
+ioctl(-1, UFFDIO_ZEROPAGE, {range={start=0, len=0}, mode=0}) = -1 EBADF (Bad file descriptor)
+ioctl(3, UFFDIO_ZEROPAGE, NULL) = -1 EFAULT (Bad address)
+ioctl(3, UFFDIO_ZEROPAGE, {range={start=0x7f3dd2640000, len=0x1000}, mode=UFFDIO_ZEROPAGE_MODE_DONTWAKE, zeropage=0x1000}) = 0
+ioctl(-1, UFFDIO_WAKE, {start=0, len=0}) = -1 EBADF (Bad file descriptor)
+ioctl(3, UFFDIO_WAKE, NULL) = -1 EFAULT (Bad address)
+ioctl(3, UFFDIO_WAKE, {start=0x7f3dd2640000, len=0x1000}) = 0
+ioctl(-1, UFFDIO_UNREGISTER, {start=0, len=0}) = -1 EBADF (Bad file descriptor)
+ioctl(3, UFFDIO_UNREGISTER, NULL) = -1 EFAULT (Bad address)
+ioctl(3, UFFDIO_UNREGISTER, {start=0x7f3dd2640000, len=0x1000}) = 0
++++ exited with 0 +++

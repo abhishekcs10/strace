@@ -1,0 +1,5 @@
+brk(NULL) = 0x20dc000
+brk(NULL) = 0x20dc000
+brk(NULL) = 0x20dc000
+brk(0x20fe000) = 0x20fe000
++++ exited with 0 +++

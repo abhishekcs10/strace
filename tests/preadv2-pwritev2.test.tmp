@@ -1,0 +1,3 @@
+preadv2(-1, NULL, 18069003361555037940, 8846757241787236088, RWF_HIPRI) = -1 ENOSYS (Function not implemented)
+pwritev2(-1, NULL, 18069003361555037940, 8846757241787236088, RWF_HIPRI) = -1 ENOSYS (Function not implemented)
++++ exited with 0 +++

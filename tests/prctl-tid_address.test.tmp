@@ -1,0 +1,5 @@
+prctl(PR_GET_TID_ADDRESS, NULL) = -1 EFAULT (Bad address)
+prctl(PR_GET_TID_ADDRESS, 0xfffffffffffffffd) = -1 EFAULT (Bad address)
+prctl(PR_GET_TID_ADDRESS, [NULL]) = 0
+prctl(PR_GET_TID_ADDRESS, [0xfffffffffffffffd]) = 0
++++ exited with 0 +++

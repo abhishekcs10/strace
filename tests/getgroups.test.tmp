@@ -1,0 +1,11 @@
+getgroups(0, NULL) = 9
+getgroups(0, NULL) = 9
+getgroups(-1, NULL) = -1 EINVAL (Invalid argument)
+getgroups(-1, NULL) = -1 EINVAL (Invalid argument)
+getgroups(65536, NULL) = -1 EFAULT (Bad address)
+getgroups(65536, NULL) = -1 EFAULT (Bad address)
+getgroups(9, [4, 24, 27, 30, 46, 50, 113, 128, 1000]) = 9
+getgroups(10, [4, 24, 27, 30, 46, 50, 113, 128, 1000]) = 9
+getgroups(10, [4, 24, 27, 30, 46, 50, 113, 128, 1000]) = 9
+getgroups(9, 0x7f5f27f70000) = -1 EFAULT (Bad address)
++++ exited with 0 +++

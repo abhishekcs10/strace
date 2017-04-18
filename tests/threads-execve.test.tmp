@@ -1,0 +1,22 @@
+18410 execve("./threads-execve", ["./threads-execve"], [/* 80 vars */]) = 0
+18410 rt_sigsuspend(0x7ffd1f8c3b60, 16) = -1 EINVAL (Invalid argument)
+18410 rt_sigsuspend([], 8) = ? ERESTARTNOHAND (To be restarted if no handler)
+18410 execve("./threads-execve", ["./threads-execve", "8", "0"], [/* 80 vars */]) = 0
+18410 exit(42)       = ?
+18411 nanosleep({tv_sec=0, tv_nsec=12345}, NULL) = 0
+18411 execve("./threads-execve", ["./threads-execve", "8", "1"], [/* 80 vars */] <pid changed to 18410 ...>
+18410 +++ superseded by execve in pid 18411 +++
+18410 <... execve resumed> ) = 0
+18410 rt_sigsuspend([], 8 <unfinished ...>
+18412 nanosleep({tv_sec=0, tv_nsec=12345}, NULL) = 0
+18412 execve("./threads-execve", ["./threads-execve", "8", "2"], [/* 80 vars */] <unfinished ...>
+18410 <... rt_sigsuspend resumed>) = ?
+18410 +++ superseded by execve in pid 18412 +++
+18410 <... execve resumed> ) = 0
+18410 nanosleep({tv_sec=123, tv_nsec=0},  <unfinished ...>
+18413 nanosleep({tv_sec=0, tv_nsec=12345}, NULL) = 0
+18413 execve("./threads-execve", ["./threads-execve", "8", "3"], [/* 80 vars */] <unfinished ...>
+18410 <... nanosleep resumed> <unfinished ...>) = ?
+18410 +++ superseded by execve in pid 18413 +++
+18410 <... execve resumed> ) = 0
+18410 +++ exited with 0 +++

@@ -1,0 +1,3 @@
+sysinfo(NULL) = -1 EFAULT (Bad address)
+sysinfo({uptime=48553, loads=[70976, 38944, 24224], totalram=8281481216, freeram=4344578048, sharedram=361574400, bufferram=134389760, totalswap=8499752960, freeswap=8499752960, procs=587, totalhigh=0, freehigh=0, mem_unit=1}) = 0
++++ exited with 0 +++

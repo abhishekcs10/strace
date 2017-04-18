@@ -1,0 +1,4 @@
+ustat(makedev(8, 2), {f_tfree=27237319, f_tinode=8473089}) = 0
+ustat(makedev(4095, 1048575), NULL) = -1 EINVAL (Invalid argument)
+ustat(makedev(4095, 1048575), 0x7ffcbbb683d0) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

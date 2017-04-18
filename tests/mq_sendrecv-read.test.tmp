@@ -1,0 +1,33 @@
+mq_open(NULL, O_RDONLY) = -1 EFAULT (Bad address)
+mq_open(0x7f158794afc0, O_ACCMODE|O_CREAT, 0177355, NULL) = -1 EFAULT (Bad address)
+mq_open(0x7f158794afc0, O_ACCMODE|O_CREAT, 0177355, 0x7f1587950fc8) = -1 EFAULT (Bad address)
+mq_open(0x7f158794afc0, O_ACCMODE|O_CREAT, 0177355, {mq_flags=0xc2c1c0bfbebdbcbb, mq_maxmsg=-3834312847370369853, mq_msgsize=-3255591464665756469, mq_curmsgs=-2676870081961143085}) = -1 EFAULT (Bad address)
+mq_timedsend(0, NULL, 0, 0, NULL) = -1 EBADF (Bad file descriptor)
+mq_timedsend(-559039906, 0x7f158794b000, 13464652301154783319, 3740978899, 0x7f158793f000) = -1 EFAULT (Bad address)
+mq_timedsend(-559039906, 0x7f158794aff8, 64, 3740978899, {tv_sec=-2400987260445003763, tv_nsec=-374081472968130835}) = -1 EINVAL (Invalid argument)
+mq_timedsend(-559039906, "\270\271\272\273\274\275\276\277", 8, 3740978899, {tv_sec=-2400987260445003763, tv_nsec=-374081472968130835}) = -1 EINVAL (Invalid argument)
+mq_timedsend(-559039906, "\210\211\212\213\214\215\216\217\220\221\222\223\224\225\226\227\230\231\232\233\234\235\236\237\240\241\242\243\244\245\246\247"..., 64, 3740978899, {tv_sec=-2400987260445003763, tv_nsec=-374081472968130835}) = -1 EINVAL (Invalid argument)
+mq_timedreceive(0, NULL, 0, NULL, NULL) = -1 EBADF (Bad file descriptor)
+mq_timedreceive(-559039906, 0x7f158794b000, 13464652301154783319, 0x7f1587945000, 0x7f158793f000) = -1 EFAULT (Bad address)
+mq_timedreceive(-559039906, 0x7f158794afc0, 13464652301154783319, 0x7f1587944ffc, {tv_sec=-2400987260445003763, tv_nsec=-374081472968130835}) = -1 EINVAL (Invalid argument)
+mq_notify(0, NULL) = -1 EBADF (Bad file descriptor)
+mq_notify(-559039906, 0x7f1587933000) = -1 EFAULT (Bad address)
+mq_notify(-559039906, {sigev_value={sival_int=-1159983635, sival_ptr=0xdeadbeefbadc0ded}, sigev_signo=4207869677, sigev_notify=0xdefaced /* SIGEV_??? */}) = -1 EFAULT (Bad address)
+mq_notify(-559039906, {sigev_value={sival_int=-1159983635, sival_ptr=0xdeadbeefbadc0ded}, sigev_signo=4207869677, sigev_notify=SIGEV_NONE}) = -1 EFAULT (Bad address)
+mq_notify(-559039906, {sigev_value={sival_int=-1159983635, sival_ptr=0xdeadbeefbadc0ded}, sigev_signo=SIGALRM, sigev_notify=SIGEV_SIGNAL}) = -1 EFAULT (Bad address)
+mq_notify(-559039906, {sigev_value={sival_int=-1159983635, sival_ptr=0xdeadbeefbadc0ded}, sigev_signo=SIGALRM, sigev_notify=SIGEV_THREAD, sigev_notify_function=0xdeadbeefbadc0ded, sigev_notify_attributes=0xcafef00dfacefeed}) = -1 EFAULT (Bad address)
+mq_unlink(NULL) = -1 EFAULT (Bad address)
+mq_unlink(0x7f158794b000) = -1 EFAULT (Bad address)
+mq_unlink(0x7f158794afc0) = -1 EFAULT (Bad address)
+mq_open("mq_sendrecv-read.sample", O_RDWR|O_CREAT|O_NONBLOCK, 0700, {mq_flags=0xc2c1c0bfbebdbcbb, mq_maxmsg=2, mq_msgsize=64, mq_curmsgs=-2676870081961143085}) = 0
+mq_timedsend(0, "\200\201\202\203\204\205\206\207", 8, 42, {tv_sec=9124850153538714318, tv_nsec=999999999}) = 0
+mq_timedsend(0, "\200\201\202\203\204\205\206\207\210\211\212\213\214\215\216\217\220\221\222\223\224\225\226\227\230\231\232\233\234\235\236\237"..., 64, 42, {tv_sec=9124850153538714318, tv_nsec=999999999}) = 0
+mq_timedreceive(0, "\200\201\202\203\204\205\206\207", 64, [42], {tv_sec=9124850153538714318, tv_nsec=999999999}) = 8
+ | 00000  80 81 82 83 84 85 86 87                           ........         |
+mq_timedreceive(0, "\200\201\202\203\204\205\206\207\210\211\212\213\214\215\216\217\220\221\222\223\224\225\226\227\230\231\232\233\234\235\236\237"..., 64, [42], {tv_sec=9124850153538714318, tv_nsec=999999999}) = 64
+ | 00000  80 81 82 83 84 85 86 87  88 89 8a 8b 8c 8d 8e 8f  ................ |
+ | 00010  90 91 92 93 94 95 96 97  98 99 9a 9b 9c 9d 9e 9f  ................ |
+ | 00020  a0 a1 a2 a3 a4 a5 a6 a7  a8 a9 aa ab ac ad ae af  ................ |
+ | 00030  b0 b1 b2 b3 b4 b5 b6 b7  b8 b9 ba bb bc bd be bf  ................ |
+mq_unlink("mq_sendrecv-read.sample") = 0
++++ exited with 0 +++

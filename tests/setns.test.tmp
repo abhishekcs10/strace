@@ -1,0 +1,4 @@
+setns(-559038242, 0) = -1 EBADF (Bad file descriptor)
+setns(-559038242, 0xfeedface /* CLONE_NEW??? */) = -1 EBADF (Bad file descriptor)
+setns(-559038242, CLONE_NEWCGROUP) = -1 EBADF (Bad file descriptor)
++++ exited with 0 +++

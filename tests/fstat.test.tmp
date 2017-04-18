@@ -1,0 +1,3 @@
+fstat(0, 0x7f6393c5bfe0) = -1 EFAULT (Bad address)
+fstat(0, {st_dev=makedev(8, 2), st_ino=6956692, st_mode=S_IFREG|0664, st_nlink=1, st_uid=1000, st_gid=1000, st_blksize=4096, st_blocks=0, st_size=43147718418, st_atime=1970-01-01T02:29:17+0530.000000135, st_mtime=1970-01-01T02:29:19+0530.000000246, st_ctime=2017-03-05T00:29:01+0530.829160925}) = 0
++++ exited with 0 +++

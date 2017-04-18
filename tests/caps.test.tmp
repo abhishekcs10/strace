@@ -1,0 +1,12 @@
+capget(NULL, NULL) = -1 EFAULT (Bad address)
+capget(0x7f53c3c49000, 0x7f53c3c42fe8) = -1 EFAULT (Bad address)
+capget({version=_LINUX_CAPABILITY_VERSION_3, pid=0}, 0x7f53c3c43000) = -1 EFAULT (Bad address)
+capget({version=_LINUX_CAPABILITY_VERSION_3, pid=0}, {effective=0, permitted=0, inheritable=0}) = 0
+capset(NULL, NULL) = -1 EFAULT (Bad address)
+capset(0x7f53c3c49000, 0x7f53c3c42fe8) = -1 EFAULT (Bad address)
+capset({version=0xbadc0ded /* _LINUX_CAPABILITY_VERSION_??? */, pid=-1576685468}, 0x7f53c3c42ff8) = -1 EINVAL (Invalid argument)
+capset({version=_LINUX_CAPABILITY_VERSION_2, pid=0}, 0x7f53c3c42fec) = -1 EFAULT (Bad address)
+capset({version=_LINUX_CAPABILITY_VERSION_3, pid=0}, {effective=1<<CAP_DAC_OVERRIDE|1<<CAP_WAKE_ALARM, permitted=1<<CAP_DAC_READ_SEARCH|1<<CAP_BLOCK_SUSPEND, inheritable=0}) = -1 EPERM (Operation not permitted)
+capset({version=_LINUX_CAPABILITY_VERSION_3, pid=0}, {effective=1<<CAP_WAKE_ALARM, permitted=1<<CAP_BLOCK_SUSPEND, inheritable=0}) = -1 EPERM (Operation not permitted)
+capset({version=_LINUX_CAPABILITY_VERSION_1, pid=0}, {effective=1<<CAP_DAC_OVERRIDE, permitted=1<<CAP_DAC_READ_SEARCH, inheritable=0}) = -1 EPERM (Operation not permitted)
++++ exited with 0 +++

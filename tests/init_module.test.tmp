@@ -1,0 +1,7 @@
+init_module(NULL, 18446744069414584320, NULL) = -1 EPERM (Operation not permitted)
+init_module(0xfffffeedffffface, 0, "0123456789:;<=>?@ABCDEFGHIJKLMNO"...) = -1 EPERM (Operation not permitted)
+init_module(0xfffffeedffffface, 0, "0123456789:;<=>?@ABCDEFGHIJKLMNO") = -1 EPERM (Operation not permitted)
+init_module(0xfffffeedffffface, 18446740397217530078, 0x7f27529a5000) = -1 EPERM (Operation not permitted)
+init_module(NULL, 18446740397217530078, 0x7f27529a4ff8) = -1 EPERM (Operation not permitted)
+init_module(NULL, 18446740397217530078, "\200\201\202\203\204\205\206") = -1 EPERM (Operation not permitted)
++++ exited with 0 +++

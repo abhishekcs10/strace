@@ -1,0 +1,9 @@
+wait4(13394, 0x7f12ef4d1ffc, WNOHANG|__WALL, NULL) = 0
+wait4(13394, 0x7f12ef4d1ffc, WNOHANG|__WALL, 0x7f12ef4cbf70) = 0
+wait4(13394, [{WIFEXITED(s) && WEXITSTATUS(s) == 42}], 0, {ru_utime={tv_sec=0, tv_usec=0}, ru_stime={tv_sec=0, tv_usec=0}, ru_maxrss=684, ru_ixrss=0, ru_idrss=0, ru_isrss=0, ru_minflt=21, ru_majflt=0, ru_nswap=0, ru_inblock=0, ru_oublock=0, ru_msgsnd=0, ru_msgrcv=0, ru_nsignals=0, ru_nvcsw=2, ru_nivcsw=0}) = 13394
+wait4(13395, [{WIFSIGNALED(s) && WTERMSIG(s) == SIGUSR1}], __WALL, {ru_utime={tv_sec=0, tv_usec=0}, ru_stime={tv_sec=0, tv_usec=0}, ru_maxrss=564, ru_ixrss=0, ru_idrss=0, ru_isrss=0, ru_minflt=14, ru_majflt=0, ru_nswap=0, ru_inblock=0, ru_oublock=0, ru_msgsnd=0, ru_msgrcv=0, ru_nsignals=0, ru_nvcsw=1, ru_nivcsw=0}) = 13395
+wait4(13396, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGSTOP}], WSTOPPED, {ru_utime={tv_sec=0, tv_usec=0}, ru_stime={tv_sec=0, tv_usec=0}, ru_maxrss=108, ru_ixrss=0, ru_idrss=0, ru_isrss=0, ru_minflt=15, ru_majflt=0, ru_nswap=0, ru_inblock=0, ru_oublock=0, ru_msgsnd=0, ru_msgrcv=0, ru_nsignals=0, ru_nvcsw=1, ru_nivcsw=0}) = 13396
+wait4(13396, [{WIFCONTINUED(s)}], WCONTINUED, {ru_utime={tv_sec=0, tv_usec=0}, ru_stime={tv_sec=0, tv_usec=0}, ru_maxrss=108, ru_ixrss=0, ru_idrss=0, ru_isrss=0, ru_minflt=15, ru_majflt=0, ru_nswap=0, ru_inblock=0, ru_oublock=0, ru_msgsnd=0, ru_msgrcv=0, ru_nsignals=0, ru_nvcsw=2, ru_nivcsw=0}) = 13396
+wait4(13396, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, {ru_utime={tv_sec=0, tv_usec=0}, ru_stime={tv_sec=0, tv_usec=0}, ru_maxrss=756, ru_ixrss=0, ru_idrss=0, ru_isrss=0, ru_minflt=22, ru_majflt=0, ru_nswap=0, ru_inblock=0, ru_oublock=0, ru_msgsnd=0, ru_msgrcv=0, ru_nsignals=0, ru_nvcsw=3, ru_nivcsw=0}) = 13396
+wait4(-1, 0x7f12ef4d1ffc, WNOHANG|WSTOPPED|__WALL, 0x7f12ef4cbf70) = -1 ECHILD (No child processes)
++++ exited with 0 +++

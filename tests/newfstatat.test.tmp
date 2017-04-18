@@ -1,0 +1,4 @@
+newfstatat(AT_FDCWD, "newfstatat.sample", 0x7f98013d5fe0, AT_SYMLINK_NOFOLLOW) = -1 EFAULT (Bad address)
+newfstatat(AT_FDCWD, "/dev/full", {st_dev=makedev(0, 6), st_ino=9, st_mode=S_IFCHR|0666, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_rdev=makedev(1, 7), st_atime=2017-03-04T11:00:08+0530.093049346, st_mtime=2017-03-04T11:00:08+0530.093049346, st_ctime=2017-03-04T11:00:08+0530.093049346}, AT_SYMLINK_NOFOLLOW) = 0
+newfstatat(AT_FDCWD, "newfstatat.sample", {st_dev=makedev(8, 2), st_ino=6957035, st_mode=S_IFREG|0640, st_nlink=1, st_uid=1000, st_gid=1000, st_blksize=4096, st_blocks=0, st_size=43147718418, st_atime=1970-01-01T02:29:17+0530.000000135, st_mtime=1970-01-01T02:29:19+0530.000000246, st_ctime=2017-03-05T00:29:05+0530.225161079}, AT_SYMLINK_NOFOLLOW) = 0
++++ exited with 0 +++

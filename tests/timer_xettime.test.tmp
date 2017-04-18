@@ -1,0 +1,5 @@
+timer_settime(233811181, TIMER_ABSTIME, NULL, NULL) = -1 EINVAL (Invalid argument)
+timer_create(CLOCK_MONOTONIC, {sigev_signo=0, sigev_notify=SIGEV_NONE}, [0]) = 0
+timer_settime(0, 0, {it_interval={tv_sec=233811169, tv_nsec=233811170}, it_value={tv_sec=233811171, tv_nsec=233811172}}, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=0, tv_nsec=0}}) = 0
+timer_gettime(0, {it_interval={tv_sec=233811169, tv_nsec=233811170}, it_value={tv_sec=233811171, tv_nsec=233791298}}) = 0
++++ exited with 0 +++

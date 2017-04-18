@@ -1,0 +1,7 @@
+prctl(PR_SET_TSC, 0 /* PR_TSC_??? */) = -1 EINVAL (Invalid argument)
+prctl(PR_SET_TSC, 0xfacebeef /* PR_TSC_??? */) = -1 EINVAL (Invalid argument)
+prctl(PR_SET_TSC, PR_TSC_SIGSEGV) = 0
+prctl(PR_GET_TSC, NULL) = -1 EFAULT (Bad address)
+prctl(PR_GET_TSC, 0x7f83072a4000) = -1 EFAULT (Bad address)
+prctl(PR_GET_TSC, [PR_TSC_SIGSEGV]) = 0
++++ exited with 0 +++

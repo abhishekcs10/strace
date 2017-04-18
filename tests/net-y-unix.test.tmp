@@ -1,0 +1,28 @@
+close(3</etc/ld.so.cache>) = 0
+close(3</lib/x86_64-linux-gnu/libc-2.23.so>) = 0
+socket(AF_UNIX, SOCK_STREAM, 0) = 3<socket:[291739]>
+bind(3<socket:[291739]>, {sa_family=AF_UNIX, sun_path="net-y-unix-local-stream"}, 26) = 0
+listen(3<socket:[291739]>, 1) = 0
+getsockopt(3<socket:[291739]>, SOL_SOCKET, SO_PASSCRED, [0], [4]) = 0
+getsockname(3<socket:[291739]>, {sa_family=AF_UNIX, sun_path="net-y-unix-local-stream"}, [110->26]) = 0
+socket(AF_UNIX, SOCK_STREAM, 0) = 4<socket:[291740]>
+connect(4<socket:[291740]>, {sa_family=AF_UNIX, sun_path="net-y-unix-local-stream"}, 26) = 0
+accept(3<socket:[291739]>, {sa_family=AF_UNIX}, [110->2]) = 5<socket:[291741]>
+getpeername(4<socket:[291740]>, {sa_family=AF_UNIX, sun_path="net-y-unix-local-stream"}, [110->26]) = 0
+sendto(4<socket:[291740]>, "text", 4, MSG_DONTWAIT, NULL, 0) = 4
+close(4<socket:[291740]>) = 0
+recvfrom(5<socket:[291741]>, "text", 4, MSG_DONTWAIT, NULL, NULL) = 4
+close(5<socket:[291741]>) = 0
+socket(AF_UNIX, SOCK_STREAM, 0) = 4<socket:[291742]>
+setsockopt(4<socket:[291742]>, SOL_SOCKET, SO_PASSCRED, [1], 4) = 0
+getsockname(3<socket:[291739]>, {sa_family=AF_UNIX, sun_path="net-y-unix-local-stream"}, [110->26]) = 0
+connect(4<socket:[291742]>, {sa_family=AF_UNIX, sun_path="net-y-unix-local-stream"}, 26) = 0
+accept(3<socket:[291739]>, {sa_family=AF_UNIX, sun_path=@"0004e"}, [110->8]) = 5<socket:[291743]>
+getpeername(4<socket:[291742]>, {sa_family=AF_UNIX, sun_path="net-y-unix-local-stream"}, [110->26]) = 0
+getsockname(4<socket:[291742]>, {sa_family=AF_UNIX, sun_path=@"0004e"}, [110->8]) = 0
+sendto(4<socket:[291742]>, "text", 4, MSG_DONTWAIT, NULL, 0) = 4
+close(4<socket:[291742]>) = 0
+recvfrom(5<socket:[291743]>, "text", 4, MSG_DONTWAIT, NULL, NULL) = 4
+close(5<socket:[291743]>) = 0
+close(3<socket:[291739]>) = 0
++++ exited with 0 +++

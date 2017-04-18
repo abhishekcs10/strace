@@ -1,0 +1,5 @@
+ioprio_get(0xfa57beef /* IOPRIO_WHO_??? */, -629534633) = -1 EINVAL (Invalid argument)
+ioprio_get(IOPRIO_WHO_PROCESS, 0) = 4 (IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 4))
+ioprio_set(IOPRIO_WHO_PGRP, 0, IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 8191)) = -1 EINVAL (Invalid argument)
+ioprio_set(0xfa57beef /* IOPRIO_WHO_??? */, -629534633, IOPRIO_PRIO_VALUE(0x7d677 /* IOPRIO_CLASS_??? */, 7917)) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

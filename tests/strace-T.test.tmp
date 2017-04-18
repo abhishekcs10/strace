@@ -1,0 +1,2 @@
+nanosleep({tv_sec=1, tv_nsec=0}, NULL) = 0 <1.000196>
++++ exited with 0 +++

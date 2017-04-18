@@ -1,0 +1,5 @@
+rt_sigaction(SIGUSR2, {sa_handler=SIG_IGN, sa_mask=[HUP INT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f158ca8c4b0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGUSR2, {sa_handler=0x400930, sa_mask=[QUIT TERM], sa_flags=SA_RESTORER|SA_SIGINFO, sa_restorer=0x7f158ca8c4b0}, {sa_handler=SIG_IGN, sa_mask=[HUP INT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f158ca8c4b0}, 8) = 0
+rt_sigaction(SIGUSR2, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f158ca8c4b0}, {sa_handler=0x400930, sa_mask=[QUIT TERM], sa_flags=SA_RESTORER|SA_SIGINFO, sa_restorer=0x7f158ca8c4b0}, 8) = 0
+rt_sigaction(SIGUSR2, {sa_handler=SIG_DFL, sa_mask=~[HUP RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f158ca8c4b0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f158ca8c4b0}, 8) = 0
++++ exited with 0 +++

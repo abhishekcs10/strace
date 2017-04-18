@@ -1,0 +1,17 @@
+writev(5, [{iov_base="1.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="2.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="3.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="4.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="5.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="6.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="7.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="8.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="9.", iov_len=2}], 1) = 2
+writev(5, [{iov_base="10.", iov_len=3}], 1) = 3
+writev(5, [{iov_base="11.", iov_len=3}], 1) = -1 EINVAL (Invalid argument) (INJECTED)
+writev(5, [{iov_base="12.", iov_len=3}], 1) = 3
+writev(5, [{iov_base="13.", iov_len=3}], 1) = 3
+writev(5, [{iov_base="14.", iov_len=3}], 1) = 3
+writev(5, [{iov_base="15.", iov_len=3}], 1) = 3
+writev(5, [{iov_base="16.", iov_len=3}], 1) = 3
++++ exited with 0 +++

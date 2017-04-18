@@ -1,0 +1,7 @@
+finit_module(0, NULL, 0) = -1 EPERM (Operation not permitted)
+finit_module(-1091571699, "0123456789:;<=>?@ABCDEFGHIJKLMNO"..., 0) = -1 EPERM (Operation not permitted)
+finit_module(-1091571699, "0123456789:;<=>?@ABCDEFGHIJKLMNO", MODULE_INIT_IGNORE_VERMAGIC) = -1 EPERM (Operation not permitted)
+finit_module(-1091571699, 0x7f16dff89000, 0xdefaced0 /* MODULE_INIT_??? */) = -1 EPERM (Operation not permitted)
+finit_module(-1091571699, 0x7f16dff88ff8, MODULE_INIT_IGNORE_MODVERSIONS|0xdec0ded0) = -1 EPERM (Operation not permitted)
+finit_module(-1091571699, "\200\201\202\203\204\205\206", MODULE_INIT_IGNORE_MODVERSIONS|MODULE_INIT_IGNORE_VERMAGIC|0xfffffffc) = -1 EPERM (Operation not permitted)
++++ exited with 0 +++

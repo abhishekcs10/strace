@@ -1,0 +1,9 @@
+sched_getaffinity(11830, 1, NULL) = -1 EINVAL (Invalid argument)
+sched_getaffinity(11830, 2, NULL) = -1 EINVAL (Invalid argument)
+sched_getaffinity(11830, 4, NULL) = -1 EINVAL (Invalid argument)
+sched_getaffinity(11830, 8, NULL) = -1 EFAULT (Bad address)
+sched_getaffinity(11830, 8, 0x7f6ca0354078) = -1 EFAULT (Bad address)
+sched_getaffinity(11830, 8, [0, 1, 2, 3]) = 8
+sched_setaffinity(11830, 8, [3]) = 0
+sched_getaffinity(11830, 128, [3]) = 64
++++ exited with 0 +++

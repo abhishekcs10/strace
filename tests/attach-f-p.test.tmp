@@ -1,0 +1,10 @@
+13630 chdir("attach-f-p.test cmd") = -1 ENOENT (No such file or directory)
+13630 +++ exited with 0 +++
+13625 chdir("attach-f-p.test child 0") = -1 ENOENT (No such file or directory)
+13625 +++ exited with 0 +++
+13626 chdir("attach-f-p.test child 1") = -1 ENOENT (No such file or directory)
+13626 +++ exited with 0 +++
+13627 chdir("attach-f-p.test child 2") = -1 ENOENT (No such file or directory)
+13627 +++ exited with 0 +++
+13624 chdir("attach-f-p.test parent") = -1 ENOENT (No such file or directory)
+13624 +++ exited with 0 +++

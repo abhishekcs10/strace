@@ -1,0 +1,4 @@
+lookup_dcookie(0, NULL, 0) = -1 EPERM (Operation not permitted)
+lookup_dcookie(17390648783711107790, 0x7fa448952000, 13464652301154783319) = -1 EPERM (Operation not permitted)
+lookup_dcookie(17390648783711107790, 0x7fa448951000, 4096) = -1 EPERM (Operation not permitted)
++++ exited with 0 +++

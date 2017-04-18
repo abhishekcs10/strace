@@ -1,0 +1,19 @@
+setfsgid(1000) = 1000
+setfsgid(1000) = 1000
+setfsgid(4294902760) = 1000
+setfsgid(1000) = 1000
+setfsgid(1000) = 1000
+setfsgid(1000) = 1000
+setfsgid(65535) = 1000
+setfsgid(1000) = 1000
+setfsgid(-1) = 1000
+setfsgid(1000) = 1000
+setfsgid(-1) = 1000
+setfsgid(1000) = 1000
+setfsgid(3235839999) = 1000
+setfsgid(1000) = 1000
+setfsgid(4207869677) = 1000
+setfsgid(1000) = 1000
+setfsgid(3735928559) = 1000
+setfsgid(1000) = 1000
++++ exited with 0 +++

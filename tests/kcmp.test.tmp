@@ -1,0 +1,5 @@
+kcmp(-87158697, -553988398, 0xda7adead /* KCMP_??? */, 0xdec0ded3dec0ded4, 0xba5e1e55deadc0de) = -1 ESRCH (No such process)
+kcmp(0, 0, 0x7 /* KCMP_??? */, 0, 0) = -1 ESRCH (No such process)
+kcmp(-1153374643, -1576685468, KCMP_FILE, 3737181908, 3735929054) = -1 ESRCH (No such process)
+kcmp(-1, -1, KCMP_SYSVSEM) = -1 ESRCH (No such process)
++++ exited with 0 +++

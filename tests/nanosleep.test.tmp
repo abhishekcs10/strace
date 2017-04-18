@@ -1,0 +1,8 @@
+nanosleep({tv_sec=0, tv_nsec=789985}, NULL) = 0
+nanosleep(NULL, 0x7ffcd7ee6fe0) = -1 EFAULT (Bad address)
+nanosleep({tv_sec=0, tv_nsec=789985}, 0x7ffcd7ee6fe0) = 0
+nanosleep({tv_sec=0, tv_nsec=1000000000}, 0x7ffcd7ee6fe0) = -1 EINVAL (Invalid argument)
+setitimer(ITIMER_REAL, {it_interval={tv_sec=0, tv_usec=0}, it_value={tv_sec=0, tv_usec=111111}}, NULL) = 0
+nanosleep({tv_sec=0, tv_nsec=999999999}, {tv_sec=0, tv_nsec=888905847}) = ? ERESTART_RESTARTBLOCK (Interrupted by signal)
+--- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
++++ exited with 0 +++

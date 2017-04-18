@@ -1,0 +1,19 @@
+setfsuid(1000) = 1000
+setfsuid(1000) = 1000
+setfsuid(4294902760) = 1000
+setfsuid(1000) = 1000
+setfsuid(1000) = 1000
+setfsuid(1000) = 1000
+setfsuid(65535) = 1000
+setfsuid(1000) = 1000
+setfsuid(-1) = 1000
+setfsuid(1000) = 1000
+setfsuid(-1) = 1000
+setfsuid(1000) = 1000
+setfsuid(3235839999) = 1000
+setfsuid(1000) = 1000
+setfsuid(4207869677) = 1000
+setfsuid(1000) = 1000
+setfsuid(3735928559) = 1000
+setfsuid(1000) = 1000
++++ exited with 0 +++

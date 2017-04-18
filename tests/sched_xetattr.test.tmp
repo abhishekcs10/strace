@@ -1,0 +1,16 @@
+sched_getattr(0, NULL, 0, 0) = -1 EINVAL (Invalid argument)
+sched_getattr(0, 0x7fb50b545fd0, 0, 0) = -1 EINVAL (Invalid argument)
+sched_getattr(-87097619, NULL, 0, 0) = -1 EINVAL (Invalid argument)
+sched_getattr(-1, 0x7fb50b545fd0, 3405705229, 3735929054) = -1 EINVAL (Invalid argument)
+sched_getattr(0, 0x7fb50b546000, 48, 0) = -1 EFAULT (Bad address)
+sched_getattr(0, {size=48, sched_policy=SCHED_OTHER, sched_flags=0, sched_nice=0, sched_priority=0, sched_runtime=0, sched_deadline=0, sched_period=0}, 48, 0) = 0
+sched_getattr(0, {size=48, sched_policy=SCHED_OTHER, sched_flags=0, sched_nice=0, sched_priority=0, sched_runtime=0, sched_deadline=0, sched_period=0}, 48, 0) = 0
+sched_setattr(-87097619, NULL, 0) = -1 EINVAL (Invalid argument)
+sched_setattr(0, {size=48, sched_policy=SCHED_OTHER, sched_flags=SCHED_FLAG_RESET_ON_FORK, sched_nice=0, sched_priority=0, sched_runtime=0, sched_deadline=0, sched_period=0}, 0) = 0
+sched_setattr(0, {size=48, sched_policy=SCHED_OTHER, sched_flags=SCHED_FLAG_RESET_ON_FORK, sched_nice=0, sched_priority=0, sched_runtime=0, sched_deadline=0, sched_period=0}, 0) = 0
+sched_setattr(0, 0x7fb50b53fffc, 0) = -1 EFAULT (Bad address)
+sched_setattr(0, {size=0, sched_policy=SCHED_OTHER, sched_flags=SCHED_FLAG_RESET_ON_FORK, sched_nice=0, sched_priority=0, sched_runtime=0, sched_deadline=0, sched_period=0}, 0) = 0
+sched_setattr(0, {size=1} => {size=48}, 0) = -1 E2BIG (Argument list too long)
+sched_setattr(0, {size=47} => {size=48}, 0) = -1 E2BIG (Argument list too long)
+sched_setattr(-87097619, {size=2424336480, sched_policy=0xca7faced /* SCHED_??? */, sched_flags=0xbadc0ded1057da7a /* SCHED_FLAG_??? */, sched_nice=-1346383905, sched_priority=3100170472, sched_runtime=13464830495123435863, sched_deadline=13897669356158823541, sched_period=16055836792785972391, ...}, 3735929054) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

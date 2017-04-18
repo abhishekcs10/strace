@@ -1,0 +1,11 @@
+10380 00:29:05.177349 socket(AF_UNIX, SOCK_STREAM, 0) = 0
+10380 00:29:05.177434 bind(0, {sa_family=AF_UNIX, sun_path="net-local-stream"}, 19) = 0
+10380 00:29:05.177479 listen(0, 5)            = 0
+10380 00:29:05.177500 getsockname(0, {sa_family=AF_UNIX, sun_path="net-local-stream"}, [19]) = 0
+10380 00:29:05.177601 accept(0, {sa_family=AF_UNIX}, [19->2]) = 1
+10381 00:29:05.177668 socket(AF_UNIX, SOCK_STREAM, 0) = 1
+10381 00:29:05.177716 connect(1, {sa_family=AF_UNIX, sun_path="net-local-stream"}, 19) = 0
+10381 00:29:05.177792 --- SIGUSR1 {si_signo=SIGUSR1, si_code=SI_USER, si_pid=10380, si_uid=1000} ---
+10381 00:29:05.177868 +++ exited with 0 +++
+10380 00:29:05.177888 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10381, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+10380 00:29:05.178001 +++ exited with 0 +++

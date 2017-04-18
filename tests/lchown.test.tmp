@@ -1,0 +1,18 @@
+lchown("lchown_sample", 1000, 1000) = 0
+lchown("lchown_sample", 1000, 1000) = 0
+lchown("lchown_sample", 1000, 1000) = 0
+lchown("lchown_sample", -1, 1000) = 0
+lchown("lchown_sample", 1000, -1) = 0
+lchown("lchown_sample", -1, 1000) = 0
+lchown("lchown_sample", 1000, -1) = 0
+lchown("lchown_sample", 4294902760, 1000) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 1000, 4294902760) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 65535, 1000) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 1000, 65535) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 3235839999, 1000) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 1000, 3235839999) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 4207869677, 1000) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 1000, 4207869677) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 3735928559, 1000) = -1 ENOENT (No such file or directory)
+lchown("lchown_sample", 1000, 3735928559) = -1 ENOENT (No such file or directory)
++++ exited with 0 +++

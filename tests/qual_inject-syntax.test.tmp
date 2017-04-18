@@ -1,0 +1,1 @@
+../strace: invalid inject argument 'chdir:retval=0:signal=1:error=1'

@@ -1,0 +1,2 @@
+mlock2(0xfacefeeddeadbeef, 14627392581506174445, MLOCK_ONFAULT|0xfffffffe) = -1 EINVAL (Invalid argument)
++++ exited with 0 +++

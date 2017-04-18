@@ -1,0 +1,6 @@
+pkey_free(0) = -1 ENOSYS (Function not implemented)
+pkey_free(-1153374643) = -1 ENOSYS (Function not implemented)
+pkey_free(0) = -1 ENOSYS (Function not implemented)
+pkey_free(286387950) = -1 ENOSYS (Function not implemented)
+pkey_free(-1698898192) = -1 ENOSYS (Function not implemented)
++++ exited with 0 +++
