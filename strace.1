@@ -382,6 +382,14 @@ trace those four system calls.  Be careful when making inferences
 about the user/kernel boundary if only a subset of system calls
 are being monitored.  The default is
 .BR trace = all .
+.TP
+\fB\-e\ trace\fR=/\,\fIregex\fR
+Trace only those system calls that match the
+.IR regex .
+You can use
+.B POSIX
+Extended Regular Expression syntax (see
+.BR regex (7)).
 .PP
 .BR "\-e\ trace" = %file
 .TP
@@ -426,8 +434,11 @@ Trace all file descriptor related system calls.
 .BR "\-e\ trace" = memory " (deprecated)"
 Trace all memory mapping related system calls.
 .TP
-.BR "\-e\ trace" = %sched
-Trace all scheduler-related (sched_*) system calls.
+.BR "\-e\ trace" = %statfs
+Trace statfs, statfs64, statvfs, osf_statfs, and osf_statfs64 system calls.
+The same effect can be achieved with
+.BR "\-e\ trace" = /^(.*_)?statv?fs
+regex expression.
 .TP
 \fB\-e\ abbrev\fR=\,\fIset\fR
 Abbreviate the output from printing each member of large structures.

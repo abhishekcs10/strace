@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 case "$CC" in
-	gcc)
+	gcc*)
 		DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS --enable-gcc-Werror"
 		;;
 	clang-*)
@@ -18,6 +18,13 @@ case "${TARGET-}" in
 	x86)
 		CC="$CC -m32"
 		DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS --build=i686-pc-linux-gnu --target=i686-pc-linux-gnu"
+		;;
+esac
+
+case "$KHEADERS" in
+	*/*)
+		CPPFLAGS='-isystem /opt/kernel/include'
+		export CPPFLAGS
 		;;
 esac
 
@@ -49,6 +56,9 @@ case "${CHECK-}" in
 		make -k $j all VERBOSE=${VERBOSE-}
 		make -k $j check VERBOSE=${VERBOSE-}
 		codecov --gcov-args=-abcp ||:
+		echo 'BEGIN OF TEST SUITE INFORMATION'
+		tail -n 99999 -- tests*/test-suite.log tests*/ksysent.log
+		echo 'END OF TEST SUITE INFORMATION'
 		;;
 	*)
 		make -k $j distcheck VERBOSE=${VERBOSE-}

@@ -11,9 +11,25 @@ apt_get_install()
 		install -y "$@"
 }
 
+case "$KHEADERS" in
+	*/*)
+		git clone --depth=1 https://github.com/"$KHEADERS" kernel
+		sudo make -C kernel headers_install INSTALL_HDR_PATH=/opt/kernel
+		sudo rm -rf kernel
+		KHEADERS_INC=/opt/kernel/include
+		;;
+	*)
+		KHEADERS_INC=/usr/include
+		;;
+esac
+
 case "$CC" in
 	gcc)
 		apt_get_install gcc-multilib
+		;;
+	gcc-*)
+		sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+		apt_get_install gcc-multilib "$CC"-multilib
 		;;
 	clang-*)
 		apt_get_install gcc-multilib "$CC"
@@ -39,10 +55,9 @@ case "$CC" in
 		cd -
 		rm -rf musl
 		sudo ln -s \
-			/usr/include/linux \
-			/usr/include/asm \
-			/usr/include/asm-generic \
-			/usr/include/mtd \
+			$KHEADERS_INC/asm* \
+			$KHEADERS_INC/linux \
+			$KHEADERS_INC/mtd \
 			/opt/musl/include/
 		;;
 esac

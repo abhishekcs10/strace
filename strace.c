@@ -2181,6 +2181,9 @@ startup_tcb(struct tcb *tcp)
 			}
 		}
 	}
+
+	if (get_scno(tcp) == 1)
+		tcp->s_prev_ent = tcp->s_ent;
 }
 
 static void
@@ -2295,10 +2298,7 @@ trace(void)
 			return true;
 	}
 
-	if (WIFSTOPPED(status))
-		get_regs(pid);
-	else
-		clear_regs();
+	clear_regs();
 
 	event = (unsigned int) status >> 16;
 
@@ -2364,8 +2364,6 @@ trace(void)
 	/* Is this the very first time we see this tracee stopped? */
 	if (tcp->flags & TCB_STARTUP) {
 		startup_tcb(tcp);
-		if (get_scno(tcp) == 1)
-			tcp->s_prev_ent = tcp->s_ent;
 	}
 
 	sig = WSTOPSIG(status);

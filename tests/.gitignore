@@ -1,9 +1,7 @@
+*.dir
+*.gen.test
 *.log
-*.log.*
 *.o
-*.tmp
-*.tmp-*
-*.tmp.*
 *.trs
 _newselect
 accept
@@ -80,6 +78,7 @@ ftruncate
 ftruncate64
 futex
 futimesat
+gen_tests.am
 get_mempolicy
 getcpu
 getcwd
@@ -95,6 +94,8 @@ getgroups
 getgroups32
 getpeername
 getpgrp
+getpid
+getppid
 getrandom
 getresgid
 getresgid32
@@ -104,6 +105,7 @@ getrlimit
 getrusage
 getsid
 getsockname
+gettid
 getuid
 getuid32
 getxxid
@@ -122,6 +124,7 @@ ioctl_loop
 ioctl_loop-nv
 ioctl_loop-v
 ioctl_mtd
+ioctl_nsfs
 ioctl_rtc
 ioctl_rtc-v
 ioctl_scsi
@@ -205,6 +208,7 @@ oldselect
 oldstat
 open
 openat
+osf_utimes
 pause
 pc
 perf_event_open
@@ -240,6 +244,7 @@ process_vm_readv
 process_vm_writev
 pselect6
 ptrace
+pure_executables.am
 pwritev
 qual_fault
 qual_inject-error-signal

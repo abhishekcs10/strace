@@ -36,7 +36,7 @@ check_prog sleep
 
 set -e
 
-./set_ptracer_any sh -c "echo > $LOG; while :; do :; done" > /dev/null &
+../set_ptracer_any sh -c "echo > $LOG; while :; do :; done" > /dev/null &
 
 while ! [ -s "$LOG" ]; do
 	kill -0 $! 2> /dev/null ||
@@ -54,7 +54,6 @@ cleanup()
 	return 0
 }
 
-rm -f "$LOG"
 $STRACE -p $tracee_pid 2> "$LOG" &
 
 while ! grep -F "Process $tracee_pid attached" "$LOG" > /dev/null; do

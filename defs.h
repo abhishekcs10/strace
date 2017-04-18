@@ -293,12 +293,15 @@ struct tcb {
 
 extern const struct xlat addrfams[];
 extern const struct xlat at_flags[];
+extern const struct xlat clocknames[];
 extern const struct xlat dirent_types[];
 extern const struct xlat evdev_abs[];
 extern const struct xlat msg_flags[];
+extern const struct xlat netlink_protocols[];
 extern const struct xlat open_access_modes[];
 extern const struct xlat open_mode_flags[];
 extern const struct xlat resource_flags[];
+extern const struct xlat setns_types[];
 extern const struct xlat sg_io_info[];
 extern const struct xlat socketlayers[];
 extern const struct xlat whence_codes[];
@@ -410,7 +413,6 @@ extern void count_syscall(struct tcb *, const struct timeval *);
 extern void call_summary(FILE *);
 
 extern void clear_regs(void);
-extern void get_regs(pid_t pid);
 extern int get_scno(struct tcb *);
 extern kernel_ulong_t get_rt_sigframe_addr(struct tcb *);
 
@@ -641,6 +643,7 @@ name ## _ioctl(struct tcb *, unsigned int request, kernel_ulong_t arg)
 DECL_IOCTL(dm);
 DECL_IOCTL(file);
 DECL_IOCTL(fs_x);
+DECL_IOCTL(nsfs);
 DECL_IOCTL(ptp);
 DECL_IOCTL(scsi);
 DECL_IOCTL(term);
@@ -713,7 +716,7 @@ extern void print_timeval32_t(const timeval32_t *);
 extern void printrusage32(struct tcb *, kernel_ulong_t);
 extern const char *sprint_timeval32(struct tcb *tcp, kernel_ulong_t);
 extern void print_timeval32(struct tcb *tcp, kernel_ulong_t);
-extern void print_timeval32_pair(struct tcb *tcp, kernel_ulong_t);
+extern void print_timeval32_utimes(struct tcb *tcp, kernel_ulong_t);
 extern void print_itimerval32(struct tcb *tcp, kernel_ulong_t);
 #endif
 

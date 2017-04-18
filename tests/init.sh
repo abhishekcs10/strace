@@ -26,10 +26,9 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ME_="${0##*/}"
-LOG="$ME_.tmp"
-OUT="$LOG.out"
-EXP="$LOG.exp"
-NAME="${ME_%.test}"
+LOG="log"
+OUT="out"
+EXP="exp"
 
 warn_() { printf >&2 '%s\n' "$*"; }
 fail_() { warn_ "$ME_: failed test: $*"; exit 1; }
@@ -52,7 +51,7 @@ dump_log_and_fail_with()
 run_prog()
 {
 	if [ $# -eq 0 ]; then
-		set -- "./$NAME"
+		set -- "../$NAME"
 	fi
 	args="$*"
 	"$@" || {
@@ -227,7 +226,6 @@ run_strace_match_diff()
 	run_prog > /dev/null
 	run_strace "$@" $args > "$EXP"
 	match_diff "$LOG" "$EXP"
-	rm -f "$EXP"
 }
 
 # Print kernel version code.
@@ -267,17 +265,36 @@ grep_pid_status()
 check_prog cat
 check_prog rm
 
-rm -f "$LOG"
+case "$ME_" in
+	*.gen.test) NAME="${ME_%.gen.test}" ;;
+	*.test) NAME="${ME_%.test}" ;;
+	*) NAME=
+esac
 
-[ -n "${STRACE-}" ] || {
-	STRACE=../strace
-	case "${LOG_COMPILER-} ${LOG_FLAGS-}" in
-		*--suppressions=*--error-exitcode=*--tool=*)
+if [ -n "$NAME" ]; then
+	TESTDIR="$NAME.dir"
+	rm -rf -- "$TESTDIR"
+	mkdir -- "$TESTDIR"
+	cd "$TESTDIR"
+
+	case "$srcdir" in
+		/*) ;;
+		*) srcdir="../$srcdir" ;;
+	esac
+
+	[ -n "${STRACE-}" ] || {
+		STRACE=../../strace
+		case "${LOG_COMPILER-} ${LOG_FLAGS-}" in
+			*--suppressions=*--error-exitcode=*--tool=*)
 			# add valgrind command prefix
 			STRACE="${LOG_COMPILER-} ${LOG_FLAGS-} $STRACE"
 			;;
-	esac
-}
+		esac
+	}
+else
+	[ -n "${STRACE-}" ] ||
+		STRACE=../strace
+fi
 
 : "${TIMEOUT_DURATION:=60}"
 : "${SLEEP_A_BIT:=sleep 1}"
