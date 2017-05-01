@@ -40,8 +40,11 @@
 static void
 print_tv(const struct timeval *tv)
 {
-	printf("{tv_sec=%ju, tv_usec=%ju}",
-	       (uintmax_t) tv->tv_sec, (uintmax_t) tv->tv_usec);
+	printf("{tv_sec=%lld, tv_usec=%llu}",
+	       (long long) tv->tv_sec,
+	       zero_extend_signed_to_ull(tv->tv_usec));
+	print_time_t_usec(tv->tv_sec,
+			  zero_extend_signed_to_ull(tv->tv_usec), 1);
 }
 
 static const char *errstr;
@@ -111,6 +114,18 @@ main(void)
 	k_futimesat(kfdcwd, kfname, (uintptr_t) (tv + 2));
 	printf("futimesat(AT_FDCWD, %s, %p) = %s\n",
 	       qname, tv + 2, errstr);
+
+	tv[0].tv_sec = 0xdeadbeefU;
+	tv[0].tv_usec = 0xfacefeedU;
+	tv[1].tv_sec = (time_t) 0xcafef00ddeadbeefLL;
+	tv[1].tv_usec = (long) 0xbadc0dedfacefeedLL;
+
+	k_futimesat(kfdcwd, kfname, (uintptr_t) tv);
+	printf("futimesat(AT_FDCWD, %s, [", qname);
+	print_tv(&tv[0]);
+	printf(", ");
+	print_tv(&tv[1]);
+	printf("]) = %s\n", errstr);
 
 	tv[0].tv_sec = 1492356708;
 	tv[0].tv_usec = 567891234;

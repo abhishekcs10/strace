@@ -60,6 +60,9 @@ void error_msg_and_skip(const char *, ...)
 void perror_msg_and_skip(const char *, ...)
 	ATTRIBUTE_FORMAT((printf, 1, 2)) ATTRIBUTE_NORETURN;
 
+/* Stat the specified file and skip the test if the stat call failed. */
+void skip_if_unavailable(const char *);
+
 /*
  * Allocate memory that ends on the page boundary.
  * Pages allocated by this call are preceeded by an unmapped page
@@ -120,7 +123,10 @@ void print_quoted_string(const char *);
 void print_quoted_memory(const char *, size_t);
 
 /* Print time_t and nanoseconds in symbolic format. */
-void print_time_t_nsec(time_t, unsigned long long);
+void print_time_t_nsec(time_t, unsigned long long, int);
+
+/* Print time_t and microseconds in symbolic format. */
+void print_time_t_usec(time_t, unsigned long long, int);
 
 /* Read an int from the file. */
 int read_int_from_file(const char *, int *);

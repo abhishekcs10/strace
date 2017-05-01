@@ -58,6 +58,7 @@ libtests_a_SOURCES = \
 	printflags.c \
 	printxval.c \
 	signal2name.c \
+	skip_unavailable.c \
 	sprintrc.c \
 	tail_alloc.c \
 	tests.h \
@@ -175,12 +176,10 @@ DECODER_TESTS = \
 	btrfs-w.test \
 	caps-abbrev.test \
 	caps.test \
-	clock.test \
 	eventfd.test \
 	execve-v.test \
 	execve.test \
 	fadvise64.test \
-	fstat.test \
 	futex.test \
 	getuid.test \
 	ioctl.test \
@@ -198,7 +197,6 @@ DECODER_TESTS = \
 	net-yy-netlink.test \
 	net-yy-unix.test \
 	net.test \
-	netlink_protocol.test \
 	nsyscalls.test \
 	oldselect.test \
 	personality.test \
@@ -214,19 +212,13 @@ DECODER_TESTS = \
 	prctl-securebits.test \
 	prctl-tid_address.test \
 	prctl-tsc.test \
-	pread64-pwrite64.test \
 	qual_fault-exit_group.test \
-	read-write.test \
 	readv.test \
-	regex.test \
-	sched.test \
 	scm_rights-fd.test \
 	seccomp-strict.test \
 	sigaction.test \
 	sigaltstack.test \
-	statfs.test \
 	sun_path.test \
-	trace_statfs.test \
 	uio.test \
 	umount.test \
 	umount2.test \
@@ -295,6 +287,7 @@ VALGRIND_SUPPRESSIONS_FILES = $(srcdir)/strace.supp
 EXTRA_DIST = \
 	caps-abbrev.awk \
 	caps.awk \
+	clock.in \
 	count-f.expected \
 	eventfd.expected \
 	fadvise.h \
@@ -322,7 +315,9 @@ EXTRA_DIST = \
 	qual_inject-error-signal.expected \
 	qual_inject-signal.expected \
 	quotactl.h \
+	regex.in \
 	run.sh \
+	sched.in \
 	scno_tampering.sh \
 	setfsugid.c \
 	setresugid.c \
@@ -340,6 +335,14 @@ EXTRA_DIST = \
 	strace.supp \
 	struct_flock.c \
 	sun_path.expected \
+	trace_fstat.in \
+	trace_fstatfs.in \
+	trace_lstat.in \
+	trace_question.in \
+	trace_stat.in \
+	trace_stat_like.in \
+	trace_statfs.in \
+	trace_statfs_like.in \
 	uio.expected \
 	umode_t.c \
 	umovestr.expected \

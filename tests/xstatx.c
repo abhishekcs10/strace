@@ -171,14 +171,20 @@ print_stat(const STRUCT_STAT *st)
 
 #  if defined(HAVE_STRUCT_STAT_ST_MTIME_NSEC) && !OLD_STAT
 #   define TIME_NSEC(val)	zero_extend_signed_to_ull(val)
+#   define HAVE_NSEC		1
 #  else
-#   define TIME_NSEC(val)	0
+#   define TIME_NSEC(val)	0ULL
+#   define HAVE_NSEC		0
 #  endif
 
-#  define PRINT_ST_TIME(field)						\
-	printf(", st_" #field "=");					\
+#define PRINT_ST_TIME(field)						\
+	printf(", st_" #field "=%lld",					\
+	       sign_extend_unsigned_to_ll(st->st_ ## field));		\
 	print_time_t_nsec(sign_extend_unsigned_to_ll(st->st_ ## field),	\
-			  TIME_NSEC(st->st_ ## field ## _nsec))
+			  TIME_NSEC(st->st_ ## field ## _nsec), 1);	\
+	if (HAVE_NSEC)							\
+		printf(", st_" #field "_nsec=%llu",			\
+		       TIME_NSEC(st->st_ ## field ## _nsec))
 
 	PRINT_ST_TIME(atime);
 	PRINT_ST_TIME(mtime);
@@ -200,9 +206,12 @@ print_stat(const STRUCT_STAT *st)
 	else \
 		printf(", %s=%llu", #field, (unsigned long long) st->field)
 
-#  define PRINT_FIELD_TIME(field)				\
-	printf(", %s=", #field);				\
-	print_time_t_nsec(st->field.tv_sec, st->field.tv_nsec)
+#  define PRINT_FIELD_TIME(field)					\
+	printf(", %s={tv_sec=%lld, tv_nsec=%u}",			\
+	       #field, (long long) st->field.tv_sec,			\
+	       (unsigned) st->field.tv_nsec);				\
+	print_time_t_nsec(st->field.tv_sec,				\
+			  zero_extend_signed_to_ull(st->field.tv_nsec), 1);
 
 	printf("{stx_mask=");
 	printflags(statx_masks, st->stx_mask, "STATX_???");
@@ -267,19 +276,19 @@ create_sample(const char *fname, const libc_off_t size)
 int
 main(void)
 {
-# if !IS_FSTAT
+# if IS_FSTAT
+	skip_if_unavailable("/proc/self/fd/");
+# else
 	static const char full[] = "/dev/full";
 # endif
-	static const char sample[] = TEST_SYSCALL_STR ".sample";
+	static const char sample[] = "stat.sample";
 	TAIL_ALLOC_OBJECT_CONST_PTR(STRUCT_STAT, st);
 
 	int rc;
 
 	rc = create_sample(sample, SAMPLE_SIZE);
-	if (rc) {
-		(void) unlink(sample);
+	if (rc)
 		return rc;
-	}
 
 # if TEST_BOGUS_STRUCT_STAT
 	STRUCT_STAT *st_cut = tail_alloc(sizeof(long) * 4);
@@ -303,7 +312,6 @@ main(void)
 		if (errno != EOVERFLOW) {
 			rc = (errno == ENOSYS) ? 77 : 1;
 			perror(TEST_SYSCALL_STR);
-			(void) unlink(sample);
 			return rc;
 		}
 	}
@@ -367,7 +375,6 @@ main(void)
 
 # endif /* IS_STATX */
 
-		(void) unlink(sample);
 		return 1;
 	}
 
@@ -434,8 +441,6 @@ main(void)
 	TEST_SYSCALL_STATX_MASK_STR = old_mask_str;
 
 # endif /* IS_STATX */
-
-	(void) unlink(sample);
 
 	puts("+++ exited with 0 +++");
 	return 0;

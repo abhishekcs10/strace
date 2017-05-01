@@ -8,9 +8,21 @@ Noteworthy changes in release ?.?? (????-??-??)
 
 * Improvements
   * Optimized syscall filtering.
+  * Improved representation of timestamps.
   * Enhanced decoding of sched_setattr syscall.
+  * Added -e trace=%stat option for tracing variants of stat syscall.
+  * Added -e trace=%lstat option for tracing variants of lstat syscall.
+  * Added -e trace=%fstat option for tracing variants of fstat and fstatat
+    syscalls.
+  * Added -e trace=%%stat option for tracing syscalls used for querying file
+    status information (stat, lstat, fstat, fstatat, statx, and their
+    variations).
   * Added -e trace=%statfs option for tracing statfs, statfs64 and statvfs
     syscalls.
+  * Added -e trace=%fstatfs option for tracing fstatfs, fstatfs64 and fstatvfs
+    syscalls.
+  * Added -e trace=%%statfs option for tracing syscalls used for querying file
+    system statistics information (statfs-like, fstatfs-like and ustat).
   * Added -e trace=/regex option for filtering syscalls using regular
     expressions.
   * Implemented decoding of signal mask in rt_sigreturn syscall on alpha, arc,

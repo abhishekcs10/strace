@@ -547,7 +547,9 @@ extern int printargs_d(struct tcb *);
 extern void addflags(const struct xlat *, uint64_t);
 extern int printflags64(const struct xlat *, uint64_t, const char *);
 extern const char *sprintflags(const char *, const struct xlat *, uint64_t);
-extern const char *sprinttime(time_t);
+extern const char *sprinttime(long long sec);
+extern const char *sprinttime_nsec(long long sec, unsigned long long nsec);
+extern const char *sprinttime_usec(long long sec, unsigned long long usec);
 extern void print_symbolic_mode_t(unsigned int);
 extern void print_numeric_umode_t(unsigned short);
 extern void print_numeric_long_umask(unsigned long);
@@ -577,7 +579,7 @@ extern void
 printpath(struct tcb *, kernel_ulong_t addr);
 
 #define TIMESPEC_TEXT_BUFSIZE \
-		(sizeof(intmax_t)*3 * 2 + sizeof("{tv_sec=%jd, tv_nsec=%jd}"))
+		(sizeof(long long) * 3 * 2 + sizeof("{tv_sec=-, tv_nsec=}"))
 extern void printfd(struct tcb *, int);
 extern void print_sockaddr(struct tcb *tcp, const void *, int);
 extern bool print_sockaddr_by_inode(const unsigned long, const enum sock_proto);
@@ -747,6 +749,8 @@ extern void line_ended(void);
 extern void tabto(void);
 extern void tprintf(const char *fmt, ...) ATTRIBUTE_FORMAT((printf, 1, 2));
 extern void tprints(const char *str);
+extern void tprintf_comment(const char *fmt, ...) ATTRIBUTE_FORMAT((printf, 1, 2));
+extern void tprints_comment(const char *str);
 
 #if SUPPORTED_PERSONALITIES > 1
 extern void set_personality(int personality);

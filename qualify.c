@@ -262,7 +262,13 @@ lookup_class(const char *s)
 		{ "%signal",	TRACE_SIGNAL	},
 		{ "%ipc",	TRACE_IPC	},
 		{ "%network",	TRACE_NETWORK	},
+		{ "%stat",	TRACE_STAT	},
+		{ "%lstat",	TRACE_LSTAT	},
+		{ "%fstat",	TRACE_FSTAT	},
+		{ "%%stat",	TRACE_STAT_LIKE	},
 		{ "%statfs",	TRACE_STATFS	},
+		{ "%fstatfs",	TRACE_FSTATFS	},
+		{ "%%statfs",	TRACE_STATFS_LIKE	},
 	};
 
 	unsigned int i;
@@ -323,12 +329,19 @@ qualify_syscall_name(const char *s, struct number_set *set)
 static bool
 qualify_syscall(const char *token, struct number_set *set)
 {
+	bool ignore_fail = false;
+
+	while (*token == '?') {
+		token++;
+		ignore_fail = true;
+	}
 	if (*token >= '0' && *token <= '9')
-		return qualify_syscall_number(token, set);
+		return qualify_syscall_number(token, set) || ignore_fail;
 	if (*token == '/')
-		return qualify_syscall_regex(token + 1, set);
+		return qualify_syscall_regex(token + 1, set) || ignore_fail;
 	return qualify_syscall_class(token, set)
-	       || qualify_syscall_name(token, set);
+	       || qualify_syscall_name(token, set)
+	       || ignore_fail;
 }
 
 /*

@@ -33,12 +33,21 @@ typedef struct timeval timeval_t;
 
 #include MPERS_DEFS
 
-static const char timeval_fmt[]  = "{tv_sec=%jd, tv_usec=%jd}";
+static const char timeval_fmt[]  = "{tv_sec=%lld, tv_usec=%llu}";
 
 static void
 print_timeval_t(const timeval_t *t)
 {
-	tprintf(timeval_fmt, (intmax_t) t->tv_sec, (intmax_t) t->tv_usec);
+	tprintf(timeval_fmt, (long long) t->tv_sec,
+		zero_extend_signed_to_ull(t->tv_usec));
+}
+
+static void
+print_timeval_t_utime(const timeval_t *t)
+{
+	print_timeval_t(t);
+	tprints_comment(sprinttime_usec(t->tv_sec,
+		zero_extend_signed_to_ull(t->tv_usec)));
 }
 
 MPERS_PRINTER_DECL(void, print_struct_timeval, const void *arg)
@@ -66,9 +75,9 @@ MPERS_PRINTER_DECL(void, print_timeval_utimes,
 		return;
 
 	tprints("[");
-	print_timeval_t(&t[0]);
+	print_timeval_t_utime(&t[0]);
 	tprints(", ");
-	print_timeval_t(&t[1]);
+	print_timeval_t_utime(&t[1]);
 	tprints("]");
 }
 
@@ -85,7 +94,8 @@ MPERS_PRINTER_DECL(const char *, sprint_timeval,
 		snprintf(buf, sizeof(buf), "%#" PRI_klx, addr);
 	} else {
 		snprintf(buf, sizeof(buf), timeval_fmt,
-			 (intmax_t) t.tv_sec, (intmax_t) t.tv_usec);
+			 (long long) t.tv_sec,
+			 zero_extend_signed_to_ull(t.tv_usec));
 	}
 
 	return buf;
@@ -111,7 +121,16 @@ MPERS_PRINTER_DECL(void, print_itimerval,
 void
 print_timeval32_t(const timeval32_t *t)
 {
-	tprintf(timeval_fmt, (intmax_t) t->tv_sec, (intmax_t) t->tv_usec);
+	tprintf(timeval_fmt, (long long) t->tv_sec,
+		zero_extend_signed_to_ull(t->tv_usec));
+}
+
+static void
+print_timeval32_t_utime(const timeval32_t *t)
+{
+	print_timeval32_t(t);
+	tprints_comment(sprinttime_usec(t->tv_sec,
+		zero_extend_signed_to_ull(t->tv_usec)));
 }
 
 void
@@ -134,9 +153,9 @@ print_timeval32_utimes(struct tcb *const tcp, const kernel_ulong_t addr)
 		return;
 
 	tprints("[");
-	print_timeval32_t(&t[0]);
+	print_timeval32_t_utime(&t[0]);
 	tprints(", ");
-	print_timeval32_t(&t[1]);
+	print_timeval32_t_utime(&t[1]);
 	tprints("]");
 }
 
@@ -168,7 +187,8 @@ sprint_timeval32(struct tcb *const tcp, const kernel_ulong_t addr)
 		snprintf(buf, sizeof(buf), "%#" PRI_klx, addr);
 	} else {
 		snprintf(buf, sizeof(buf), timeval_fmt,
-			 (intmax_t) t.tv_sec, (intmax_t) t.tv_usec);
+			 (long long) t.tv_sec,
+			 zero_extend_signed_to_ull(t.tv_usec));
 	}
 
 	return buf;

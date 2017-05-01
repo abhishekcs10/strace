@@ -40,12 +40,13 @@ typedef struct timespec timespec_t;
 # define UTIME_OMIT ((1l << 30) - 2l)
 #endif
 
-static const char timespec_fmt[] = "{tv_sec=%jd, tv_nsec=%jd}";
+static const char timespec_fmt[] = "{tv_sec=%lld, tv_nsec=%llu}";
 
 static void
 print_timespec_t(const timespec_t *t)
 {
-	tprintf(timespec_fmt, (intmax_t) t->tv_sec, (intmax_t) t->tv_nsec);
+	tprintf(timespec_fmt, (long long) t->tv_sec,
+		zero_extend_signed_to_ull(t->tv_nsec));
 }
 
 static void
@@ -60,6 +61,8 @@ print_timespec_t_utime(const timespec_t *t)
 		break;
 	default:
 		print_timespec_t(t);
+		tprints_comment(sprinttime_nsec(t->tv_sec,
+			zero_extend_signed_to_ull(t->tv_nsec)));
 		break;
 	}
 }
@@ -88,7 +91,8 @@ MPERS_PRINTER_DECL(const char *, sprint_timespec,
 		snprintf(buf, sizeof(buf), "%#" PRI_klx, addr);
 	} else {
 		snprintf(buf, sizeof(buf), timespec_fmt,
-			 (intmax_t) t.tv_sec, (intmax_t) t.tv_nsec);
+			 (long long) t.tv_sec,
+			 zero_extend_signed_to_ull(t.tv_nsec));
 	}
 
 	return buf;

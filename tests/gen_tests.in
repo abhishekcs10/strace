@@ -40,6 +40,7 @@ chmod	-a28
 chown	-a28
 chown32	-a31
 chroot	-a24
+clock	test_trace_expr 'times|fcntl.*' -e/clock
 clock_adjtime	-a37
 clock_nanosleep	-e trace=clock_nanosleep,clock_gettime
 clock_xettime	-a36 -e trace=clock_getres,clock_gettime,clock_settime
@@ -76,10 +77,11 @@ file_ioctl	+ioctl.test
 finit_module	-a25
 flock	-a19
 fork-f	-a26 -qq -f -e signal=none -e trace=chdir
-fstat64	+fstat.test
-fstatat64	-a32 -v -P $NAME.sample -P /dev/full
-fstatfs	+statfs.test
-fstatfs64	+statfs.test
+fstat	-a15 -v -P stat.sample
+fstat64	-a17 -v -P stat.sample
+fstatat64	-a32 -v -P stat.sample -P /dev/full
+fstatfs	-a18
+fstatfs64	-a24
 fsync	-a10
 ftruncate	-a24
 ftruncate64	-a36
@@ -149,8 +151,9 @@ lchown32	-a32
 link
 linkat
 lookup_dcookie	-a27
-lstat	-a32 -v -P $NAME.sample -P /dev/full
-lstat64	-a32 -v -P $NAME.sample -P /dev/full
+lstat	-a32 -v -P stat.sample -P /dev/full
+lstat64	-a32 -v -P stat.sample -P /dev/full
+madvise	-a33
 mbind
 membarrier	-a36
 memfd_create
@@ -181,11 +184,12 @@ munlockall	-a13
 nanosleep	-a20
 net-icmp_filter	-e trace=getsockopt,setsockopt
 net-sockaddr	-a24 -e trace=connect
-newfstatat	-a32 -v -P $NAME.sample -P /dev/full
+netlink_protocol	-e trace=%network
+newfstatat	-a32 -v -P stat.sample -P /dev/full
 old_mmap	-a11 -e trace=mmap
-oldfstat	+fstat.test
-oldlstat	-a32 -v -P $NAME.sample -P /dev/full
-oldstat	-a32 -v -P $NAME.sample -P /dev/full
+oldfstat	-a18 -v -P stat.sample
+oldlstat	-a32 -v -P stat.sample -P /dev/full
+oldstat	-a32 -v -P stat.sample -P /dev/full
 open	-a30 -P $NAME.sample
 openat	-P $NAME.sample
 osf_utimes	-a21
@@ -199,6 +203,7 @@ pkey_free	-a13
 pkey_mprotect	-a37
 ppoll	-s2
 ppoll-v	-v -s2 -e trace=ppoll
+pread64-pwrite64	-a21 -eread=0 -ewrite=1 -e trace=pread64,pwrite64 -P pread64-pwrite64-tmpfile -P /dev/zero -P /dev/null
 preadv	-a21
 preadv-pwritev	-a19 -eread=0 -ewrite=1 -e trace=preadv,pwritev
 preadv2-pwritev2	-a22 -eread=0 -ewrite=1 -e trace=preadv2,pwritev2
@@ -213,6 +218,7 @@ quotactl
 quotactl-v	-v -e trace=quotactl
 quotactl-xfs	-e trace=quotactl
 quotactl-xfs-v	-v -e trace=quotactl
+read-write	-a15 -eread=0 -ewrite=1 -e trace=read,write -P read-write-tmpfile -P /dev/zero -P /dev/null
 readahead	-a1
 readdir	-a16
 readlink	-xx
@@ -221,6 +227,7 @@ reboot
 recvfrom	-a35
 recvmmsg-timeout	-a25 -e trace=recvmmsg
 recvmsg	-eread=0 -ewrite=1 -e trace=recvmsg,sendmsg
+regex	test_trace_expr '' -etrace='/^(.*_)?statv?fs'
 remap_file_pages
 rename	-a35
 renameat
@@ -234,6 +241,7 @@ rt_sigreturn	-esignal='!USR1'
 rt_sigsuspend	-a20 -esignal=none
 rt_sigtimedwait	-a38
 rt_tgsigqueueinfo	-esignal=none
+sched	test_trace_expr times -e/sched
 sched_get_priority_mxx	-a33 -e trace=sched_get_priority_min,sched_get_priority_max
 sched_rr_get_interval	-a31
 sched_xetaffinity	-a28 -e trace=sched_getaffinity,sched_setaffinity
@@ -270,7 +278,7 @@ setreuid32	-a17
 setrlimit	-a27
 setuid	-a10
 setuid32	-a12
-shmxt	-a11 -e trace=/\\(osf_\\)\\?shmat,shmdt
+shmxt	-a11 -e trace='/(osf_)?shmat,shmdt'
 shutdown	-a24
 siginfo	-e trace=none
 signal_receive	-a16 -e trace=kill
@@ -278,10 +286,11 @@ signalfd4
 sigreturn	-esignal='!USR1'
 socketcall	-a20
 splice
-stat	-a32 -v -P $NAME.sample -P /dev/full
-stat64	-a32 -v -P $NAME.sample -P /dev/full
-statfs64	+statfs.test
-statx	-a32 -v -P $NAME.sample -P /dev/full
+stat	-a32 -v -P stat.sample -P /dev/full
+stat64	-a32 -v -P stat.sample -P /dev/full
+statfs	-a17
+statfs64	-a23
+statx	-a32 -v -P stat.sample -P /dev/full
 swap	-a23 -e trace=swapon,swapoff
 symlink	-a34
 symlinkat
@@ -297,6 +306,14 @@ timer_xettime	-e trace=timer_create,timer_settime,timer_gettime
 timerfd_xettime	-e trace=timerfd_create,timerfd_settime,timerfd_gettime
 times	-esignal=none
 times-fail	-a12 -e trace=times
+trace_fstat	test_trace_expr '' -e%fstat -v -P stat.sample -P /dev/full
+trace_fstatfs	test_trace_expr '' -e%fstatfs
+trace_lstat	test_trace_expr '' -e%lstat -v -P stat.sample -P /dev/full
+trace_question	test_trace_expr '' -e?osf_utimes,?/^pkey_.*
+trace_stat	test_trace_expr '' -e%stat -v -P stat.sample -P /dev/full
+trace_stat_like	test_trace_expr '' -e%%stat -v -P stat.sample -P /dev/full
+trace_statfs	test_trace_expr '' -e%statfs
+trace_statfs_like	test_trace_expr '' -e%%statfs
 truncate
 truncate64
 ugetrlimit	-a28

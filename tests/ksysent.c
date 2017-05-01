@@ -40,7 +40,13 @@
 #define TP 0
 #define TS 0
 #define TM 0
+#define TST 0
+#define TLST 0
+#define TFST 0
+#define TSTA 0
 #define TSF 0
+#define TFSF 0
+#define TSFA 0
 #define NF 0
 #define MA 0
 #define SI 0
