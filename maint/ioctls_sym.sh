@@ -1,5 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2015 Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (c) 2015-2017 The strace developers.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,6 +27,8 @@
 
 set -efu
 
+export LC_ALL=C
+
 # This script processes header files containing ioctl command definitions in
 # symbolic form, assuming that these definitions match the following regular
 # expressions:
@@ -36,7 +39,7 @@ r_io='\([A-Z]\+\)\?_S\?\(IO\|IOW\|IOR\|IOWR\|IOC\)'
 r_value='[[:space:]]\+'"$r_io"'[[:space:]]*([^)]'
 regexp="${r_define}${r_cmd_name}${r_value}"
 
-uname_m="$(uname -m)"
+: "${uname_m:=$(uname -m)}"
 me="${0##*/}"
 msg()
 {
@@ -74,9 +77,10 @@ tmpdir="$(mktemp -dt "$me.XXXXXX")"
 # list interesting files in $inc_dir.
 cd "$inc_dir"
 inc_dir="$(pwd -P)"
-find . -type f -name '*.h' -print0 |
-	xargs -r0 grep -l "$r_value" -- > "$tmpdir"/headers1.list ||
-		exit 0
+find . -type f -name '*.h' -exec grep -l "$r_value" -- '{}' + \
+	> "$tmpdir"/headers1.list ||:
+[ -s "$tmpdir"/headers1.list ] || exit 0
+
 cd - > /dev/null
 sed 's|^\./\(uapi/\)\?||' < "$tmpdir"/headers1.list > "$tmpdir"/headers.list
 LC_COLLATE=C sort -u -o "$tmpdir"/headers.list "$tmpdir"/headers.list
@@ -84,22 +88,31 @@ LC_COLLATE=C sort -u -o "$tmpdir"/headers.list "$tmpdir"/headers.list
 msg "processing $(wc -l < "$tmpdir"/headers.list) header files from $inc_dir"
 failed=0
 
+READELF="${READELF:-readelf}"
 CC="${CC:-gcc}"
 CPP="${CPP:-cpp}"
 CPPFLAGS="${CPPFLAGS-} -D__EXPORTED_HEADERS__"
-CFLAGS="${CFLAGS:--Wall -O2} -D__EXPORTED_HEADERS__"
-LDFLAGS="${LDFLAGS-}"
+CFLAGS="${CFLAGS:--Wall -O2} -gdwarf-2 -D__EXPORTED_HEADERS__"
 INCLUDES="-I$inc_dir/uapi -I$inc_dir ${INCLUDES-}"
-
-$CC $INCLUDES $CFLAGS -c -o "$tmpdir"/print_ioctlent.o "${0%/*}"/print_ioctlent.c
 
 # Hook onto <asm-generic/ioctl.h> and <asm/ioctl.h>
 for d in asm-generic asm; do
 	mkdir "$tmpdir/$d"
 	cat > "$tmpdir/$d"/ioctl.h <<__EOF__
 #include_next <$d/ioctl.h>
+#undef _IOC_NONE
+#define _IOC_NONE (2<<7)
+#undef _IOC_READ
+#define _IOC_READ (2<<8)
+#undef _IOC_WRITE
+#define _IOC_WRITE (2<<9)
 #undef _IOC
-#define _IOC(dir,type,nr,size) dir, type, nr, size
+#define _IOC(dir, type, nr, size) \
+	char \
+		d[1 + (dir)], \
+		n[1 + (((unsigned) (type) << _IOC_TYPESHIFT) | \
+			((unsigned) (nr) << _IOC_NRSHIFT))], \
+		s[1 + (size)]
 __EOF__
 done
 
@@ -156,15 +169,8 @@ typedef unsigned long long u64;
 
 #include "$f"
 
-void print_ioctlent(const char *, const char *, unsigned short, unsigned short, unsigned short, unsigned short);
-
-int main(void)
-{
-
 #include "defs.h"
 
-return 0;
-}
 __EOF__
 
 	# Soft pre-include workarounds for some processed files.  Fragile.
@@ -385,14 +391,16 @@ s/^\([[:space:]]\+[^),]\+)\),$/\1/' >> "$tmpdir/$f"
 	# Soft post-preprocess workarounds.  Fragile.
 	case "$f" in
 		*linux/kvm.h)
-			arm_list='KVM_ARM_PREFERRED_TARGET|KVM_ARM_VCPU_INIT'
-			ppc_list='KVM_ALLOCATE_RMA|KVM_CREATE_SPAPR_TCE|KVM_CREATE_SPAPR_TCE_64|KVM_PPC_CONFIGURE_V3_MMU|KVM_PPC_GET_HTAB_FD|KVM_PPC_GET_RMMU_INFO|KVM_PPC_RTAS_DEFINE_TOKEN'
-			x86_list='KVM_GET_CPUID2|KVM_GET_DEBUGREGS|KVM_GET_EMULATED_CPUID|KVM_GET_LAPIC|KVM_GET_MSRS|KVM_GET_MSR_INDEX_LIST|KVM_GET_PIT|KVM_GET_PIT2|KVM_GET_SUPPORTED_CPUID|KVM_GET_VCPU_EVENTS|KVM_GET_XCRS|KVM_GET_XSAVE|KVM_SET_CPUID|KVM_SET_CPUID2|KVM_SET_DEBUGREGS|KVM_SET_LAPIC|KVM_SET_MEMORY_ALIAS|KVM_SET_MSRS|KVM_SET_PIT|KVM_SET_PIT2|KVM_SET_VCPU_EVENTS|KVM_SET_XCRS|KVM_SET_XSAVE|KVM_X86_SET_MCE|KVM_XEN_HVM_CONFIG'
+			arm_list='KVM_ARM_[A-Z_]+'
+			ppc_list='KVM_ALLOCATE_RMA|KVM_CREATE_SPAPR_TCE|KVM_CREATE_SPAPR_TCE_64|KVM_PPC_[A-Z1-9_]+'
+			s390_list='KVM_S390_[A-Z_]+'
+			x86_list='KVM_GET_CPUID2|KVM_GET_DEBUGREGS|KVM_GET_EMULATED_CPUID|KVM_GET_LAPIC|KVM_GET_MSRS|KVM_GET_MSR_INDEX_LIST|KVM_GET_PIT|KVM_GET_PIT2|KVM_GET_SUPPORTED_CPUID|KVM_GET_VCPU_EVENTS|KVM_GET_XCRS|KVM_GET_XSAVE|KVM_SET_CPUID|KVM_SET_CPUID2|KVM_SET_DEBUGREGS|KVM_SET_LAPIC|KVM_SET_MEMORY_ALIAS|KVM_SET_MSRS|KVM_SET_PIT|KVM_SET_PIT2|KVM_SET_VCPU_EVENTS|KVM_SET_XCRS|KVM_SET_XSAVE|KVM_XEN_HVM_CONFIG|KVM_X86_[A-Z_]+'
 			case "$uname_m" in
-				arm*) list="$ppc_list|$x86_list" ;;
-				ppc*) list="$arm_list|$x86_list" ;;
-				i?86|x86_64*) list="$arm_list|$ppc_list" ;;
-				*) list="$arm_list|$ppc_list|$x86_list" ;;
+				arm*) list="$ppc_list|$s390_list|$x86_list" ;;
+				ppc*) list="$arm_list|$s390_list|$x86_list" ;;
+				s390*) list="$arm_list|$ppc_list|$x86_list" ;;
+				i?86|x86_64*) list="$arm_list|$ppc_list|$s390_list" ;;
+				*) list="$arm_list|$ppc_list|$s390_list|$x86_list" ;;
 			esac
 			sed -r -i "/[[:space:]]($list)[[:space:]]/d" "$tmpdir"/header.out
 			;;
@@ -408,17 +416,27 @@ s/^\([[:space:]]\+[^),]\+)\),$/\1/' >> "$tmpdir/$f"
 	# Keep this in sync with $regexp by replacing $r_cmd_name with $r_local_names.
 	defs_regexp="${r_define}\($r_local_names\)${r_value}"
 
-	qf="$(echo "$prefix$f" | sed 's/[&\/]/\\&/g')"
 	# This outputs lines in the following format:
-	# print_ioctlent("filename.h", "IOCTL_CMD_NAME", IOCTL_CMD_NAME);
-	sed -n 's/'"$defs_regexp"'.*/print_ioctlent("'"$qf"'", "\1", \1);/p' \
+	# struct {IOCTL_CMD_NAME;} ioc_IOCTL_CMD_NAME;
+	sed -n 's/'"$defs_regexp"'.*/struct {\1;} ioc_\1;/p' \
 		< "$tmpdir"/header.out > "$tmpdir"/defs.h
 
 	# If something is wrong with the file, this will fail.
 	$CC $INCLUDES $CFLAGS -c -o "$tmpdir"/printents.o "$tmpdir"/printents.c
-	$CC $LDFLAGS -o "$tmpdir"/print_ioctlents \
-		"$tmpdir"/printents.o "$tmpdir"/print_ioctlent.o
-	"$tmpdir"/print_ioctlents > "$tmpdir"/ioctlents
+
+	$READELF --wide --debug-dump=info "$tmpdir"/printents.o \
+		> "$tmpdir"/debug-dump
+
+	sed -r -n '
+		/^[[:space:]]*<1>/,/^[[:space:]]*<1><[^>]+>: Abbrev Number: 0/!d
+		/^[[:space:]]*<[^>]*><[^>]*>: Abbrev Number: 0/d
+		s/^[[:space:]]*<[[:xdigit:]]+>[[:space:]]+//
+		s/^[[:space:]]*((<[[:xdigit:]]+>){2}):[[:space:]]+/\1\n/
+		s/[[:space:]]+$//
+		p' "$tmpdir"/debug-dump > "$tmpdir"/debug-info
+	gawk -v HEADER_NAME="$prefix$f" -f "${0%/*}"/ioctls_sym.awk \
+		"$tmpdir"/debug-info > "$tmpdir"/ioctlents
+
 	cat "$tmpdir"/ioctlents
 	msg "$f: fetched $(grep -c '^{' "$tmpdir"/ioctlents) ioctl entries"
 }

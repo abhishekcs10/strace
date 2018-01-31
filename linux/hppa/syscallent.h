@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2001 Hewlett-Packard, Matthew Wilcox
+ * Copyright (c) 2001-2017 The strace developers.
  */
 
 [  0] = { 0,	0,		SEN(restart_syscall),		"restart_syscall"	},
@@ -70,8 +71,8 @@
 [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
 [ 66] = { 0,	0,		SEN(setsid),			"setsid"		},
 [ 67] = { 2,	TF,		SEN(pivotroot),			"pivot_root"		},
-[ 68] = { 0,	TS,		SEN(siggetmask),		"sgetmask"		},
-[ 69] = { 1,	TS,		SEN(sigsetmask),		"ssetmask"		},
+[ 68] = { 0,	TS,		SEN(sgetmask),			"sgetmask"		},
+[ 69] = { 1,	TS,		SEN(ssetmask),			"ssetmask"		},
 [ 70] = { 2,	0,		SEN(setreuid),			"setreuid"		},
 [ 71] = { 2,	0,		SEN(setregid),			"setregid"		},
 [ 72] = { 3,	TM,		SEN(mincore),			"mincore"		},
@@ -231,12 +232,12 @@
 [226] = { 4,	TD,		SEN(epoll_wait),		"epoll_wait"		},
 [227] = { 5,	TM|SI,		SEN(remap_file_pages),		"remap_file_pages"	},
 [228] = { 4,	TI,		SEN(semtimedop),		"semtimedop"		},
-[229] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[229] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [230] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[231] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[232] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[233] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[234] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[231] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[232] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[233] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[234] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [235] = { 5,	TP,		SEN(waitid),			"waitid"		},
 [236] = { 6,	TD,		SEN(fadvise64_64),		"fadvise64_64"		},
 [237] = { 1,	0,		SEN(set_tid_address),		"set_tid_address"	},
@@ -272,7 +273,7 @@
 [267] = { 3,	0,		SEN(ioprio_set),		"ioprio_set"		},
 [268] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [269] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[270] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[270] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [271] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [272] = { 4,	TM,		SEN(migrate_pages),		"migrate_pages"		},
 [273] = { 6,	TD,		SEN(pselect6),			"pselect6"		},
@@ -351,3 +352,4 @@
 [346] = { 6,	TD,		SEN(copy_file_range),		"copy_file_range"	},
 [347] = { 6,	TD,		SEN(preadv2),			"preadv2"		},
 [348] = { 6,	TD,		SEN(pwritev2),			"pwritev2"		},
+[349] = { 5,	TD|TF|TSTA,	SEN(statx),			"statx"			},

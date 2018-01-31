@@ -2,6 +2,7 @@
  * Check decoding of sockaddr structures
  *
  * Copyright (c) 2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,22 +37,17 @@
 #include <sys/un.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include "netlink.h"
 #include <linux/if_arp.h>
 #include <linux/if_ether.h>
 #include <linux/if_packet.h>
 #include <linux/ipx.h>
-#include <linux/netlink.h>
 #ifdef HAVE_BLUETOOTH_BLUETOOTH_H
 # include <bluetooth/bluetooth.h>
 # include <bluetooth/hci.h>
 # include <bluetooth/l2cap.h>
 # include <bluetooth/rfcomm.h>
 # include <bluetooth/sco.h>
-#endif
-
-#ifdef HAVE_IF_INDEXTONAME
-/* <linux/if.h> used to conflict with <net/if.h> */
-extern unsigned int if_nametoindex(const char *);
 #endif
 
 static void
@@ -185,19 +181,17 @@ check_in6_linklocal(struct sockaddr_in6 *const in6, const char *const h_addr)
 	       ntohs(in6->sin6_port), h_addr,
 	       ntohl(in6->sin6_flowinfo), in6->sin6_scope_id, len, ret);
 
-#ifdef HAVE_IF_INDEXTONAME
-	in6->sin6_scope_id = if_nametoindex("lo");
+	in6->sin6_scope_id = ifindex_lo();
 	if (in6->sin6_scope_id) {
 		ret = connect(-1, (void *) in6, len);
 		printf("connect(-1, {sa_family=AF_INET6, sin6_port=htons(%hu)"
 		       ", inet_pton(AF_INET6, \"%s\", &sin6_addr)"
 		       ", sin6_flowinfo=htonl(%u)"
-		       ", sin6_scope_id=if_nametoindex(\"lo\")}, %u)"
+		       ", sin6_scope_id=%s}, %u)"
 		       " = %d EBADF (%m)\n",
-		       ntohs(in6->sin6_port), h_addr,
-		       ntohl(in6->sin6_flowinfo), len, ret);
+		       ntohs(in6->sin6_port), h_addr, ntohl(in6->sin6_flowinfo),
+		       IFINDEX_LO_STR, len, ret);
 	}
-#endif
 }
 
 static void
@@ -370,19 +364,16 @@ check_ll(void)
 	       ", sll_pkttype=PACKET_HOST, sll_halen=0}, %u)"
 	       " = %d EBADF (%m)\n", c_ll.sll_ifindex, len, ret);
 
-#ifdef HAVE_IF_INDEXTONAME
-	const int id = if_nametoindex("lo");
-	if (id) {
-		((struct sockaddr_ll *) ll)->sll_ifindex = id;
+	((struct sockaddr_ll *) ll)->sll_ifindex = ifindex_lo();
+	if (((struct sockaddr_ll *) ll)->sll_ifindex) {
 		ret = connect(-1, ll, len);
 		printf("connect(-1, {sa_family=AF_PACKET"
 		       ", sll_protocol=htons(ETH_P_ALL)"
-		       ", sll_ifindex=if_nametoindex(\"lo\")"
+		       ", sll_ifindex=%s"
 		       ", sll_hatype=ARPHRD_ETHER"
 		       ", sll_pkttype=PACKET_HOST, sll_halen=0}, %u)"
-		       " = %d EBADF (%m)\n", len, ret);
+		       " = %d EBADF (%m)\n", IFINDEX_LO_STR, len, ret);
 	}
-#endif
 }
 
 #ifdef HAVE_BLUETOOTH_BLUETOOTH_H

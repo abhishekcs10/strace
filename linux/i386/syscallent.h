@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995 Rick Sladkey <jrs@world.std.com>
+ * Copyright (c) 1995-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,8 +95,8 @@
 [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
 [ 66] = { 0,	0,		SEN(setsid),			"setsid"		},
 [ 67] = { 3,	TS,		SEN(sigaction),			"sigaction"		},
-[ 68] = { 0,	TS,		SEN(siggetmask),		"sgetmask"		},
-[ 69] = { 1,	TS,		SEN(sigsetmask),		"ssetmask"		},
+[ 68] = { 0,	TS,		SEN(sgetmask),			"sgetmask"		},
+[ 69] = { 1,	TS,		SEN(ssetmask),			"ssetmask"		},
 [ 70] = { 2,	0,		SEN(setreuid16),		"setreuid"		},
 [ 71] = { 2,	0,		SEN(setregid16),		"setregid"		},
 [ 72] = { 3,	TS,		SEN(sigsuspend),		"sigsuspend"		},
@@ -302,12 +303,12 @@
 [274] = { 6,	TM,		SEN(mbind),			"mbind"			},
 [275] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		},
 [276] = { 3,	TM,		SEN(set_mempolicy),		"set_mempolicy"		},
-[277] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[277] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [278] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[279] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[280] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[281] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[282] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[279] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[280] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[281] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[282] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [283] = { 4,	0,		SEN(kexec_load),		"kexec_load"		},
 [284] = { 5,	TP,		SEN(waitid),			"waitid"		},
 [285] = { }, /* sys_setaltroot */
@@ -317,7 +318,7 @@
 [289] = { 3,	0,		SEN(ioprio_set),		"ioprio_set"		},
 [290] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [291] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[292] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[292] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [293] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [294] = { 4,	TM,		SEN(migrate_pages),		"migrate_pages"		},
 [295] = { 4,	TD|TF,		SEN(openat),			"openat"		},
@@ -409,6 +410,7 @@
 [381] = { 2,	0,		SEN(pkey_alloc),		"pkey_alloc"		},
 [382] = { 1,	0,		SEN(pkey_free),			"pkey_free"		},
 [383] = { 5,	TD|TF|TSTA,	SEN(statx),			"statx"			},
+[384] = { 2,	TP,		SEN(arch_prctl),		"arch_prctl"		},
 
 #define SYS_socket_subcall	400
 #include "subcall.h"

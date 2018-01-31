@@ -3,6 +3,7 @@
 # Skip the test if arch+kernel combination is not supported.
 #
 # Copyright (c) 2016 Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (c) 2016-2017 The strace developers.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -50,9 +51,16 @@ case "$STRACE_ARCH" in
 	mips)
 		# Only the native ABI is supported by the kernel properly, see
 		# https://sourceforge.net/p/strace/mailman/message/35587571/
+		msg_prefix="mips $MIPS_ABI scno tampering does not work"
 		uname_m="$(uname -m)"
 		case "$MIPS_ABI:$uname_m" in
-			o32:mips|n64:mips64) ;;
-			*) skip_ "$MIPS_ABI scno tampering does not work on $uname_m yet" ;;
+			n64:mips64) ;;
+			o32:mips)
+				# is it really mips32?
+				if ../is_linux_mips_n64; then
+					skip_ "$msg_prefix on mips n64 yet"
+				fi
+				;;
+			*) skip_ "$msg_prefix on $uname_m yet" ;;
 		esac ;;
 esac

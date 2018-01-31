@@ -2,6 +2,7 @@
  * Check decoding of non-NUL-terminated strings when len == -1.
  *
  * Copyright (c) 2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,13 +35,11 @@
 #include <unistd.h>
 #include <sys/uio.h>
 
-#define DEFAULT_STRLEN 32
-
 int
 main(void)
 {
 	char *const buf = tail_alloc(DEFAULT_STRLEN + 1);
-	const struct iovec io = {
+	struct iovec io = {
 		.iov_base = buf,
 		.iov_len = -1
 	};
@@ -63,6 +62,11 @@ main(void)
 	rc = writev(-1, &io, 1);
 	tprintf("writev(-1, [{iov_base=\"\\0%*s\"..., iov_len=%lu}], 1)"
 		" = %s\n", DEFAULT_STRLEN - 1, buf + 1, -1UL, sprintrc(rc));
+
+	++io.iov_base;
+	rc = writev(-1, &io, 1);
+	tprintf("writev(-1, [{iov_base=%p, iov_len=%lu}], 1) = %s\n",
+		io.iov_base, -1UL, sprintrc(rc));
 
 	tprintf("+++ exited with 0 +++\n");
 	return 0;

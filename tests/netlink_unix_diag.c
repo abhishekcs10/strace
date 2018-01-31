@@ -2,6 +2,7 @@
  * This file is part of net-yy-unix strace test.
  *
  * Copyright (c) 2014-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2014-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +37,9 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <linux/netlink.h>
+#include "netlink.h"
 #include <linux/sock_diag.h>
 #include <linux/unix_diag.h>
-
-#if !defined NETLINK_SOCK_DIAG && defined NETLINK_INET_DIAG
-# define NETLINK_SOCK_DIAG NETLINK_INET_DIAG
-#endif
 
 static void
 send_query(const int fd)

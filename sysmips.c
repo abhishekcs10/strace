@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2001 Wichert Akkerman <wichert@deephackmode.org>
  * Copyright (c) 2014-2015 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2014-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +59,7 @@ SYS_FUNC(sysmips)
 			     nodename) < 0) {
 			printaddr(tcp->u_arg[1]);
 		} else {
-			print_quoted_string(nodename, __NEW_UTS_LEN + 1,
-					    QUOTE_0_TERMINATED);
+			print_quoted_cstring(nodename, __NEW_UTS_LEN + 1);
 		}
 		return RVAL_DECODED;
 	}

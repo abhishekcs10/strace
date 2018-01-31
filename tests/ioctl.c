@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2015-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +54,7 @@
  && defined EV_KEY
 
 int
-main(void )
+main(void)
 {
 	uint64_t data = 0;
 
@@ -85,8 +86,13 @@ main(void )
 	       " = -1 EBADF (%m)\n", &data);
 
 	(void) ioctl(-1, _IOR('M', 13, int), &data);
+# ifdef HAVE_STRUCT_MTD_WRITE_REQ
 	printf("ioctl(-1, MIXER_READ(13) or OTPSELECT, [MTD_OTP_OFF])"
 	       " = -1 EBADF (%m)\n");
+# else
+	printf("ioctl(-1, MIXER_READ(13) or OTPSELECT, %p)"
+	       " = -1 EBADF (%m)\n", &data);
+# endif
 
 	(void) ioctl(-1, _IOC(_IOC_WRITE, 0xde, 0, 0), (kernel_ulong_t) -1ULL);
 	printf("ioctl(-1, _IOC(_IOC_WRITE, 0xde, 0, 0), %#lx)"

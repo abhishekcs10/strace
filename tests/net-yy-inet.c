@@ -2,6 +2,7 @@
  * This file is part of net-yy-inet strace test.
  *
  * Copyright (c) 2014-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +74,7 @@ main(void)
 	if (getsockname(listen_fd, listen_sa, len))
 		perror_msg_and_fail("getsockname");
 	const unsigned int listen_port =
-		ntohs(((struct sockaddr_in *) listen_sa) -> sin_port);
+		ntohs(((struct sockaddr_in *) listen_sa)->sin_port);
 	printf("getsockname(%d<TCP:[127.0.0.1:%u]>, {sa_family=AF_INET"
 	       ", sin_port=htons(%u), sin_addr=inet_addr(\"127.0.0.1\")}"
 	       ", [%u]) = 0\n",
@@ -108,7 +109,7 @@ main(void)
 	if (accept_fd < 0)
 		perror_msg_and_fail("accept");
 	const unsigned int connect_port =
-		ntohs(((struct sockaddr_in *) accept_sa) -> sin_port);
+		ntohs(((struct sockaddr_in *) accept_sa)->sin_port);
 	printf("accept(%d<TCP:[127.0.0.1:%u]>, {sa_family=AF_INET"
 	       ", sin_port=htons(%u), sin_addr=inet_addr(\"127.0.0.1\")}"
 	       ", [%u]) = %d<TCP:[127.0.0.1:%u->127.0.0.1:%u]>\n",

@@ -23,6 +23,7 @@
 /config.sub
 /configure
 /depcomp
+/gnu
 /install-sh
 /ioctl_iocdef.[ih]
 /ioctl_redefs[12].h
@@ -56,6 +57,8 @@
 /strace
 /strace-*.tar.gz
 /strace-*.tar.xz
+/strace.1
+/strace-log-merge.1
 /strace.dsc
 /strace.spec
 /sys_func.h

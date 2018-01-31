@@ -4,6 +4,7 @@
  * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
  * Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
  * Copyright (c) 2005-2015 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2015-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,10 +105,7 @@ SYS_FUNC(getdents64)
 			printxval(dirent_types, d->d_type, "DT_???");
 
 			tprints(", d_name=");
-			if (print_quoted_string(d->d_name, d_name_len,
-					        QUOTE_0_TERMINATED) > 0) {
-				tprints("...");
-			}
+			print_quoted_cstring(d->d_name, d_name_len);
 
 			tprints("}");
 		}

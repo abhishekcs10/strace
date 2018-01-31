@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +33,8 @@
 typedef struct timespec timespec_t;
 
 #include MPERS_DEFS
+
+#include "xstring.h"
 
 #ifndef UTIME_NOW
 # define UTIME_NOW ((1l << 30) - 1l)
@@ -67,6 +70,42 @@ print_timespec_t_utime(const timespec_t *t)
 	}
 }
 
+MPERS_PRINTER_DECL(bool, print_struct_timespec_data_size,
+		   const void *arg, const size_t size)
+{
+	if (size < sizeof(timespec_t)) {
+		tprints("?");
+		return false;
+	}
+
+	print_timespec_t(arg);
+	return true;
+}
+
+MPERS_PRINTER_DECL(bool, print_struct_timespec_array_data_size,
+		   const void *arg, const unsigned int nmemb,
+		   const size_t size)
+{
+	const timespec_t *ts = arg;
+	unsigned int i;
+
+	if (nmemb > size / sizeof(timespec_t)) {
+		tprints("?");
+		return false;
+	}
+
+	tprints("[");
+
+	for (i = 0; i < nmemb; i++) {
+		if (i)
+			tprints(", ");
+		print_timespec_t(&ts[i]);
+	}
+
+	tprints("]");
+	return true;
+}
+
 MPERS_PRINTER_DECL(void, print_timespec,
 		   struct tcb *const tcp, const kernel_ulong_t addr)
 {
@@ -88,9 +127,9 @@ MPERS_PRINTER_DECL(const char *, sprint_timespec,
 		strcpy(buf, "NULL");
 	} else if (!verbose(tcp) || (exiting(tcp) && syserror(tcp)) ||
 		   umove(tcp, addr, &t)) {
-		snprintf(buf, sizeof(buf), "%#" PRI_klx, addr);
+		xsprintf(buf, "%#" PRI_klx, addr);
 	} else {
-		snprintf(buf, sizeof(buf), timespec_fmt,
+		xsprintf(buf, timespec_fmt,
 			 (long long) t.tv_sec,
 			 zero_extend_signed_to_ull(t.tv_nsec));
 	}

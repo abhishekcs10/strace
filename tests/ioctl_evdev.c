@@ -2,6 +2,7 @@
  * This file is part of ioctl_evdev strace test.
  *
  * Copyright (c) 2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,9 +67,11 @@ print_ffe_common(const struct ff_effect *const ffe, const char *const type_str)
 # endif /* VERBOSE */
 }
 
-# define TEST_NULL_ARG(cmd) \
-	ioctl(-1, cmd, 0); \
-	printf("ioctl(-1, %s, NULL) = -1 EBADF (%m)\n", #cmd)
+# define TEST_NULL_ARG(cmd)						\
+	do {								\
+		ioctl(-1, cmd, 0);					\
+		printf("ioctl(-1, %s, NULL) = -1 EBADF (%m)\n", #cmd);	\
+	} while (0)
 
 int
 main(void)

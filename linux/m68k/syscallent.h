@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995 Rick Sladkey <jrs@world.std.com>
+ * Copyright (c) 1995-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,8 +95,8 @@
 [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
 [ 66] = { 0,	0,		SEN(setsid),			"setsid"		},
 [ 67] = { 3,	TS,		SEN(sigaction),			"sigaction"		},
-[ 68] = { 0,	TS,		SEN(siggetmask),		"sgetmask"		},
-[ 69] = { 1,	TS,		SEN(sigsetmask),		"ssetmask"		},
+[ 68] = { 0,	TS,		SEN(sgetmask),			"sgetmask"		},
+[ 69] = { 1,	TS,		SEN(ssetmask),			"ssetmask"		},
 [ 70] = { 2,	0,		SEN(setreuid16),		"setreuid"		},
 [ 71] = { 2,	0,		SEN(setregid16),		"setregid"		},
 [ 72] = { 3,	TS,		SEN(sigsuspend),		"sigsuspend"		},
@@ -296,12 +297,12 @@
 [268] = { 6,	TM,		SEN(mbind),			"mbind"			},
 [269] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		},
 [270] = { 3,	TM,		SEN(set_mempolicy),		"set_mempolicy"		},
-[271] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[271] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [272] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[273] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[274] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[275] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[276] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[273] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[274] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[275] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[276] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [277] = { 5,	TP,		SEN(waitid),			"waitid"		},
 [278] = { 5,	0,		SEN(vserver),			"vserver"		},
 [279] = { 5,	0,		SEN(add_key),			"add_key"		},
@@ -310,7 +311,7 @@
 [282] = { 3,	0,		SEN(ioprio_set),		"ioprio_set"		},
 [283] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [284] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[285] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[285] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [286] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [287] = { 4,	TM,		SEN(migrate_pages),		"migrate_pages"		},
 [288] = { 4,	TD|TF,		SEN(openat),			"openat"		},

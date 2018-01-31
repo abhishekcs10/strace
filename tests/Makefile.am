@@ -1,6 +1,7 @@
 # Automake input for strace tests.
 #
 # Copyright (c) 2011-2016 Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (c) 2011-2017 The strace developers.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +28,9 @@
 
 OS = linux
 ARCH = @arch@
+NATIVE_ARCH = @arch_native@
 MPERS_NAME =
+MPERS_CC_FLAGS =
 ARCH_MFLAGS =
 AM_CFLAGS = $(WARN_CFLAGS)
 AM_CPPFLAGS = $(ARCH_MFLAGS) \
@@ -41,6 +44,7 @@ AM_CPPFLAGS = $(ARCH_MFLAGS) \
 AM_LDFLAGS = $(ARCH_MFLAGS)
 
 libtests_a_SOURCES = \
+	create_nl_socket.c \
 	errno2name.c \
 	error_msg.c \
 	fill_memory.c \
@@ -48,6 +52,7 @@ libtests_a_SOURCES = \
 	get_sigset_size.c \
 	hexdump_strdup.c \
 	hexquote_strndup.c \
+	ifindex.c \
 	inode_of_sockfd.c \
 	libmmsg.c \
 	libsocketcall.c \
@@ -61,6 +66,12 @@ libtests_a_SOURCES = \
 	skip_unavailable.c \
 	sprintrc.c \
 	tail_alloc.c \
+	test_netlink.h \
+	test_nlattr.h \
+	test_printpath.c \
+	test_printstrn.c \
+	test_ucopy.c \
+	test_ucopy.h \
 	tests.h \
 	tprintf.c \
 	# end of libtests_a_SOURCES
@@ -71,12 +82,18 @@ LDADD = libtests.a
 include pure_executables.am
 
 check_PROGRAMS = $(PURE_EXECUTABLES) \
+	_newselect-P \
 	answer \
 	attach-f-p \
 	attach-f-p-cmd \
 	attach-p-cmd-cmd \
 	attach-p-cmd-p \
+	block_reset_raise_run \
 	caps-abbrev \
+	check_sigblock \
+	check_sigign \
+	clone_parent \
+	clone_ptrace \
 	count-f \
 	execve-v \
 	execveat-v \
@@ -92,7 +109,9 @@ check_PROGRAMS = $(PURE_EXECUTABLES) \
 	ioctl_loop-v \
 	ioctl_nsfs \
 	ioctl_rtc-v \
+	is_linux_mips_n64 \
 	ksysent \
+	list_sigaction_signum \
 	mmsg-silent \
 	mmsg_name-v \
 	msg_control-v \
@@ -101,6 +120,9 @@ check_PROGRAMS = $(PURE_EXECUTABLES) \
 	netlink_netlink_diag \
 	netlink_unix_diag \
 	nsyscalls \
+	nsyscalls-d \
+	oldselect-P \
+	oldselect-efault-P \
 	pc \
 	perf_event_open_nonverbose \
 	perf_event_open_unabbrev \
@@ -117,19 +139,26 @@ check_PROGRAMS = $(PURE_EXECUTABLES) \
 	quotactl-xfs-v \
 	redirect-fds \
 	restart_syscall \
+	run_expect_termsig \
 	scm_rights \
 	seccomp-filter-v \
 	seccomp-strict \
+	select-P \
 	set_ptracer_any \
+	set_sigblock \
+	set_sigign \
 	signal_receive \
 	sleep \
 	stack-fcall \
+	stack-fcall-mangled \
 	threads-execve \
+	unblock_reset_raise \
 	unix-pair-send-recv \
 	unix-pair-sendto-recvfrom \
 	vfork-f \
 	wait4-v \
 	waitid-v \
+	zeroargc \
 	# end of check_PROGRAMS
 
 attach_f_p_LDADD = -lrt -lpthread $(LDADD)
@@ -161,10 +190,17 @@ uio_CPPFLAGS = $(AM_CPPFLAGS) -D_FILE_OFFSET_BITS=64
 stack_fcall_SOURCES = stack-fcall.c \
 	stack-fcall-0.c stack-fcall-1.c stack-fcall-2.c stack-fcall-3.c
 
+stack_fcall_mangled_SOURCES = stack-fcall-mangled.c \
+	stack-fcall-mangled-0.c stack-fcall-mangled-1.c \
+	stack-fcall-mangled-2.c stack-fcall-mangled-3.c
+
 include gen_tests.am
 
 if USE_LIBUNWIND
 LIBUNWIND_TESTS = strace-k.test
+if USE_DEMANGLE
+LIBUNWIND_TESTS += strace-k-demangle.test
+endif
 else
 LIBUNWIND_TESTS =
 endif
@@ -183,11 +219,6 @@ DECODER_TESTS = \
 	futex.test \
 	getuid.test \
 	ioctl.test \
-	ioctl_dm-v.test \
-	ioctl_dm.test \
-	ioctl_loop-nv.test \
-	ioctl_nsfs.test \
-	ioctl_sock_gifconf.test \
 	ipc_msgbuf.test \
 	llseek.test \
 	lseek.test \
@@ -197,10 +228,13 @@ DECODER_TESTS = \
 	net-yy-netlink.test \
 	net-yy-unix.test \
 	net.test \
+	netlink_sock_diag.test \
 	nsyscalls.test \
-	oldselect.test \
+	nsyscalls-d.test \
+	nsyscalls-nd.test \
 	personality.test \
 	pipe.test \
+	poll-P.test \
 	poll.test \
 	prctl-arg2-intptr.test \
 	prctl-dumpable.test \
@@ -214,11 +248,12 @@ DECODER_TESTS = \
 	prctl-tsc.test \
 	qual_fault-exit_group.test \
 	readv.test \
+	rt_sigaction.test \
 	scm_rights-fd.test \
 	seccomp-strict.test \
-	sigaction.test \
 	sigaltstack.test \
 	sun_path.test \
+	xet_thread_area_x86.test \
 	uio.test \
 	umount.test \
 	umount2.test \
@@ -233,17 +268,25 @@ MISC_TESTS = \
 	attach-f-p.test \
 	attach-p-cmd.test \
 	bexecve.test \
+	clone_parent.test \
+	clone_ptrace.test \
 	count-f.test \
 	count.test \
 	detach-running.test \
 	detach-sleeping.test \
 	detach-stopped.test \
 	filter-unavailable.test \
+	filtering_fd-syntax.test \
+	filtering_syscall-syntax.test \
+	fflush.test \
 	get_regs.test \
+	interactive_block.test \
 	ksysent.test \
 	opipe.test \
 	options-syntax.test \
 	pc.test \
+	printpath-umovestr-legacy.test \
+	printstrn-umoven-legacy.test \
 	qual_fault-syntax.test \
 	qual_fault.test \
 	qual_inject-error-signal.test \
@@ -255,6 +298,8 @@ MISC_TESTS = \
 	redirect-fds.test \
 	redirect.test \
 	restart_syscall.test \
+	sigblock.test \
+	sigign.test \
 	strace-C.test \
 	strace-E.test \
 	strace-S.test \
@@ -265,6 +310,7 @@ MISC_TESTS = \
 	strace-t.test \
 	strace-tt.test \
 	strace-ttt.test \
+	termsig.test \
 	threads-execve.test \
 	# end of MISC_TESTS
 
@@ -278,13 +324,15 @@ XFAIL_TESTS_x32 = int_0x80.gen.test
 XFAIL_TESTS = $(XFAIL_TESTS_$(MPERS_NAME)) $(XFAIL_TESTS_$(ARCH))
 
 TEST_LOG_COMPILER = env
-AM_TEST_LOG_FLAGS = STRACE_ARCH=$(ARCH) MIPS_ABI=$(MIPS_ABI) $(srcdir)/run.sh
+AM_TEST_LOG_FLAGS = STRACE_ARCH=$(ARCH) STRACE_NATIVE_ARCH=$(NATIVE_ARCH) \
+			MIPS_ABI=$(MIPS_ABI) $(srcdir)/run.sh
 
 @VALGRIND_CHECK_RULES@
 VALGRIND_FLAGS = --quiet
-VALGRIND_SUPPRESSIONS_FILES = $(srcdir)/strace.supp
+VALGRIND_SUPPRESSIONS_FILES = $(abs_srcdir)/strace.supp
 
 EXTRA_DIST = \
+	attach-p-cmd.h \
 	caps-abbrev.awk \
 	caps.awk \
 	clock.in \
@@ -300,15 +348,15 @@ EXTRA_DIST = \
 	getresugid.c \
 	init.sh \
 	init_delete_module.h \
-	ioctl-v.sh \
 	ipc.sh \
 	ipc_msgbuf.expected \
 	ksysent.sed \
 	lstatx.c \
 	match.awk \
 	net.expected \
-	oldselect.expected \
+	netlink_sock_diag-v.sh \
 	pipe.expected \
+	print_user_desc.c \
 	process_vm_readv_writev.c \
 	pure_executables.list \
 	qual_fault-exit_group.expected \
@@ -316,6 +364,7 @@ EXTRA_DIST = \
 	qual_inject-signal.expected \
 	quotactl.h \
 	regex.in \
+	rt_sigaction.awk \
 	run.sh \
 	sched.in \
 	scno_tampering.sh \
@@ -323,18 +372,20 @@ EXTRA_DIST = \
 	setresugid.c \
 	setreugid.c \
 	setugid.c \
-	sigaction.awk \
 	sigaltstack.expected \
 	sockname.c \
+	stack-fcall.h \
 	strace-C.expected \
 	strace-E.expected \
 	strace-T.expected \
 	strace-ff.expected \
+	strace-k-demangle.test \
 	strace-k.test \
 	strace-r.expected \
 	strace.supp \
 	struct_flock.c \
 	sun_path.expected \
+	syntax.sh \
 	trace_fstat.in \
 	trace_fstatfs.in \
 	trace_lstat.in \
@@ -375,6 +426,10 @@ clean-local: clean-local-check
 clean-local-check:
 	-rm -rf -- $(TESTS:.test=.dir) $(GEN_TESTS:.gen.test=.dir)
 
+.PHONY: check-valgrind-local
+check-valgrind-local: $(check_LIBRARIES) $(check_PROGRAMS)
+
+BUILT_SOURCES = ksysent.h
 CLEANFILES = ksysent.h
 
 include ../scno.am
