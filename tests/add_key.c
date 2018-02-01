@@ -2,6 +2,7 @@
  * Check decoding of add_key syscall.
  *
  * Copyright (c) 2016 Eugene Syromyatnikov <evgsyr@gmail.com>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,8 +71,7 @@ main(void)
 {
 	static const char unterminated1[] = { '\1', '\2', '\3', '\4', '\5' };
 	static const char unterminated2[] = { '\6', '\7', '\10', '\11', '\12' };
-	static const char unterminated3[] =
-		{ '\16', '\17', '\20', '\21', '\22' };
+	static const char unterminated3[] = { '\16', '\17', '\20', '\21', '\22' };
 
 	char *bogus_type = tail_memdup(unterminated1, sizeof(unterminated1));
 	char *bogus_desc = tail_memdup(unterminated2, sizeof(unterminated2));

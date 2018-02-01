@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013 Luca Clementi <luca.clementi@gmail.com>
+ * Copyright (c) 2013-2017 The strace developers.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,6 +29,16 @@
 #include <limits.h>
 #include <libunwind-ptrace.h>
 
+#ifdef USE_DEMANGLE
+# if defined HAVE_DEMANGLE_H
+#  include <demangle.h>
+# elif defined HAVE_LIBIBERTY_DEMANGLE_H
+#  include <libiberty/demangle.h>
+# endif
+#endif
+
+#include "xstring.h"
+
 #ifdef _LARGEFILE64_SOURCE
 # ifdef HAVE_FOPEN64
 #  define fopen_for_input fopen64
@@ -38,10 +49,8 @@
 # define fopen_for_input fopen
 #endif
 
-#define DPRINTF(F, A, ...) if (debug_flag) error_msg("[unwind(" A ")] " F, __VA_ARGS__)
-
 /*
- * Кeep a sorted array of cache entries,
+ * Keep a sorted array of cache entries,
  * so that we can binary search through it.
  */
 struct mmap_cache_t {
@@ -76,13 +85,13 @@ typedef void (*error_action_fn)(void *data,
  * Type used in stacktrace capturing
  */
 struct call_t {
-       struct call_t* next;
-       char *output_line;
+	struct call_t *next;
+	char *output_line;
 };
 
 struct queue_t {
-       struct call_t *tail;
-       struct call_t *head;
+	struct call_t *tail;
+	struct call_t *head;
 };
 
 static void queue_print(struct queue_t *queue);
@@ -90,6 +99,8 @@ static void delete_mmap_cache(struct tcb *tcp, const char *caller);
 
 static unw_addr_space_t libunwind_as;
 static unsigned int mmap_cache_generation;
+
+static const char asprintf_error_str[] = "???";
 
 void
 unwind_init(void)
@@ -108,7 +119,7 @@ unwind_tcb_init(struct tcb *tcp)
 
 	tcp->libunwind_ui = _UPT_create(tcp->pid);
 	if (!tcp->libunwind_ui)
-		die_out_of_memory();
+		perror_msg_and_die("_UPT_create");
 
 	tcp->queue = xmalloc(sizeof(*tcp->queue));
 	tcp->queue->head = NULL;
@@ -122,7 +133,7 @@ unwind_tcb_fin(struct tcb *tcp)
 	free(tcp->queue);
 	tcp->queue = NULL;
 
-	delete_mmap_cache(tcp, __FUNCTION__);
+	delete_mmap_cache(tcp, __func__);
 
 	_UPT_destroy(tcp->libunwind_ui);
 	tcp->libunwind_ui = NULL;
@@ -135,25 +146,22 @@ unwind_tcb_fin(struct tcb *tcp)
  * e.g. mmap, mprotect, munmap, execve.
  */
 static void
-build_mmap_cache(struct tcb* tcp)
+build_mmap_cache(struct tcb *tcp)
 {
 	FILE *fp;
-	struct mmap_cache_t *cache_head;
-	/* start with a small dynamically-allocated array and then expand it */
-	size_t cur_array_size = 10;
+	struct mmap_cache_t *cache_head = NULL;
+	size_t cur_array_size = 0;
 	char filename[sizeof("/proc/4294967296/maps")];
 	char buffer[PATH_MAX + 80];
 
 	unw_flush_cache(libunwind_as, 0, 0);
 
-	sprintf(filename, "/proc/%u/maps", tcp->pid);
+	xsprintf(filename, "/proc/%u/maps", tcp->pid);
 	fp = fopen_for_input(filename, "r");
 	if (!fp) {
 		perror_msg("fopen: %s", filename);
 		return;
 	}
-
-	cache_head = xcalloc(cur_array_size, sizeof(*cache_head));
 
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		struct mmap_cache_t *entry;
@@ -188,17 +196,19 @@ build_mmap_cache(struct tcb* tcp)
 			}
 			if (start_addr <= entry->start_addr ||
 			    start_addr < entry->end_addr) {
-				error_msg("%s: overlapping memory region",
-					  filename);
+				debug_msg("%s: overlapping memory region: "
+					  "\"%s\" [%08lx-%08lx] overlaps with "
+					  "\"%s\" [%08lx-%08lx]",
+					  filename, binary_path, start_addr,
+					  end_addr, entry->binary_filename,
+					  entry->start_addr, entry->end_addr);
 				continue;
 			}
 		}
 
-		if (tcp->mmap_cache_size >= cur_array_size) {
-			cur_array_size *= 2;
-			cache_head = xreallocarray(cache_head, cur_array_size,
-						   sizeof(*cache_head));
-		}
+		if (tcp->mmap_cache_size >= cur_array_size)
+			cache_head = xgrowarray(cache_head, &cur_array_size,
+						sizeof(*cache_head));
 
 		entry = &cache_head[tcp->mmap_cache_size];
 		entry->start_addr = start_addr;
@@ -211,11 +221,10 @@ build_mmap_cache(struct tcb* tcp)
 	tcp->mmap_cache = cache_head;
 	tcp->mmap_cache_generation = mmap_cache_generation;
 
-	DPRINTF("tgen=%u, ggen=%u, tcp=%p, cache=%p",
-		"cache-build",
-		tcp->mmap_cache_generation,
-		mmap_cache_generation,
-		tcp, tcp->mmap_cache);
+	debug_func_msg("tgen=%u, ggen=%u, tcp=%p, cache=%p",
+		       tcp->mmap_cache_generation,
+		       mmap_cache_generation,
+		       tcp, tcp->mmap_cache);
 }
 
 /* deleting the cache */
@@ -224,11 +233,10 @@ delete_mmap_cache(struct tcb *tcp, const char *caller)
 {
 	unsigned int i;
 
-	DPRINTF("tgen=%u, ggen=%u, tcp=%p, cache=%p, caller=%s",
-		"cache-delete",
-		tcp->mmap_cache_generation,
-		mmap_cache_generation,
-		tcp, tcp->mmap_cache, caller);
+	debug_func_msg("tgen=%u, ggen=%u, tcp=%p, cache=%p, caller=%s",
+		       tcp->mmap_cache_generation,
+		       mmap_cache_generation,
+		       tcp, tcp->mmap_cache, caller);
 
 	for (i = 0; i < tcp->mmap_cache_size; i++) {
 		free(tcp->mmap_cache[i].binary_filename);
@@ -249,27 +257,23 @@ rebuild_cache_if_invalid(struct tcb *tcp, const char *caller)
 	if (!tcp->mmap_cache)
 		build_mmap_cache(tcp);
 
-	if (!tcp->mmap_cache || !tcp->mmap_cache_size)
-		return false;
-	else
-		return true;
+	return tcp->mmap_cache && tcp->mmap_cache_size;
 }
 
 void
-unwind_cache_invalidate(struct tcb* tcp)
+unwind_cache_invalidate(struct tcb *tcp)
 {
 #if SUPPORTED_PERSONALITIES > 1
 	if (tcp->currpers != DEFAULT_PERSONALITY) {
-		/* disable strack trace */
+		/* disable stack trace */
 		return;
 	}
 #endif
 	mmap_cache_generation++;
-	DPRINTF("tgen=%u, ggen=%u, tcp=%p, cache=%p", "increment",
-		tcp->mmap_cache_generation,
-		mmap_cache_generation,
-		tcp,
-		tcp->mmap_cache);
+	debug_func_msg("tgen=%u, ggen=%u, tcp=%p, cache=%p",
+		       tcp->mmap_cache_generation,
+		       mmap_cache_generation,
+		       tcp, tcp->mmap_cache);
 }
 
 static void
@@ -285,8 +289,7 @@ get_symbol_name(unw_cursor_t *cursor, char **name,
 			*offset = 0;
 			break;
 		}
-		*name = xreallocarray(*name, 2, *size);
-		*size *= 2;
+		*name = xgrowarray(*name, size, 1);
 	}
 }
 
@@ -323,14 +326,27 @@ print_stack_frame(struct tcb *tcp,
 					&function_offset);
 			true_offset = ip - cur_mmap_cache->start_addr +
 				cur_mmap_cache->mmap_offset;
+
+#ifdef USE_DEMANGLE
+			char *demangled_name =
+				cplus_demangle(*symbol_name,
+					       DMGL_AUTO | DMGL_PARAMS);
+#endif
+
 			call_action(data,
 				    cur_mmap_cache->binary_filename,
+#ifdef USE_DEMANGLE
+				    demangled_name ? demangled_name :
+#endif
 				    *symbol_name,
 				    function_offset,
 				    true_offset);
+#ifdef USE_DEMANGLE
+			free(demangled_name);
+#endif
+
 			return 0;
-		}
-		else if (ip < cur_mmap_cache->start_addr)
+		} else if (ip < cur_mmap_cache->start_addr)
 			upper = mid - 1;
 		else
 			lower = mid + 1;
@@ -341,7 +357,7 @@ print_stack_frame(struct tcb *tcp,
 	 * after a set_tid_address syscall
 	 * unw_get_reg returns IP == 0
 	 */
-	if(ip)
+	if (ip)
 		error_action(data, "unexpected_backtracing_error", ip);
 	return -1;
 }
@@ -423,7 +439,7 @@ print_call_cb(void *dummy,
 	else if (binary_filename)
 		tprintf(STACK_ENTRY_NOSYMBOL_FMT);
 	else
-		tprintf(STACK_ENTRY_BUG_FMT, __FUNCTION__);
+		tprintf(STACK_ENTRY_BUG_FMT, __func__);
 
 	line_ended();
 }
@@ -448,24 +464,26 @@ sprint_call_or_error(const char *binary_filename,
 		     unsigned long true_offset,
 		     const char *error)
 {
-       char *output_line = NULL;
-       int n;
+	char *output_line = NULL;
+	int n;
 
-       if (symbol_name)
-               n = asprintf(&output_line, STACK_ENTRY_SYMBOL_FMT);
-       else if (binary_filename)
-               n = asprintf(&output_line, STACK_ENTRY_NOSYMBOL_FMT);
-       else if (error)
-               n = true_offset
-                       ? asprintf(&output_line, STACK_ENTRY_ERROR_WITH_OFFSET_FMT)
-                       : asprintf(&output_line, STACK_ENTRY_ERROR_FMT);
-       else
-               n = asprintf(&output_line, STACK_ENTRY_BUG_FMT, __FUNCTION__);
+	if (symbol_name)
+		n = asprintf(&output_line, STACK_ENTRY_SYMBOL_FMT);
+	else if (binary_filename)
+		n = asprintf(&output_line, STACK_ENTRY_NOSYMBOL_FMT);
+	else if (error)
+		n = true_offset
+			? asprintf(&output_line, STACK_ENTRY_ERROR_WITH_OFFSET_FMT)
+			: asprintf(&output_line, STACK_ENTRY_ERROR_FMT);
+	else
+		n = asprintf(&output_line, STACK_ENTRY_BUG_FMT, __func__);
 
-       if (n < 0)
-               error_msg_and_die("error in asprintf");
+	if (n < 0) {
+		perror_func_msg("asprintf");
+		output_line = (char *) asprintf_error_str;
+	}
 
-       return output_line;
+	return output_line;
 }
 
 /*
@@ -536,7 +554,9 @@ queue_print(struct queue_t *queue)
 		tprints(tmp->output_line);
 		line_ended();
 
-		free(tmp->output_line);
+		if (tmp->output_line != asprintf_error_str)
+			free(tmp->output_line);
+
 		tmp->output_line = NULL;
 		tmp->next = NULL;
 		free(tmp);
@@ -547,22 +567,21 @@ queue_print(struct queue_t *queue)
  * printing stack
  */
 void
-unwind_print_stacktrace(struct tcb* tcp)
+unwind_print_stacktrace(struct tcb *tcp)
 {
 #if SUPPORTED_PERSONALITIES > 1
 	if (tcp->currpers != DEFAULT_PERSONALITY) {
-		/* disable strack trace */
+		/* disable stack trace */
 		return;
 	}
 #endif
-       if (tcp->queue->head) {
-	       DPRINTF("tcp=%p, queue=%p", "queueprint", tcp, tcp->queue->head);
-	       queue_print(tcp->queue);
-       }
-       else if (rebuild_cache_if_invalid(tcp, __FUNCTION__)) {
-               DPRINTF("tcp=%p, queue=%p", "stackprint", tcp, tcp->queue->head);
-               stacktrace_walk(tcp, print_call_cb, print_error_cb, NULL);
-       }
+	if (tcp->queue->head) {
+		debug_func_msg("head: tcp=%p, queue=%p", tcp, tcp->queue->head);
+		queue_print(tcp->queue);
+	} else if (rebuild_cache_if_invalid(tcp, __func__)) {
+		debug_func_msg("walk: tcp=%p, queue=%p", tcp, tcp->queue->head);
+		stacktrace_walk(tcp, print_call_cb, print_error_cb, NULL);
+	}
 }
 
 /*
@@ -573,16 +592,16 @@ unwind_capture_stacktrace(struct tcb *tcp)
 {
 #if SUPPORTED_PERSONALITIES > 1
 	if (tcp->currpers != DEFAULT_PERSONALITY) {
-		/* disable strack trace */
+		/* disable stack trace */
 		return;
 	}
 #endif
 	if (tcp->queue->head)
 		error_msg_and_die("bug: unprinted entries in queue");
 
-	if (rebuild_cache_if_invalid(tcp, __FUNCTION__)) {
+	if (rebuild_cache_if_invalid(tcp, __func__)) {
 		stacktrace_walk(tcp, queue_put_call, queue_put_error,
 				tcp->queue);
-		DPRINTF("tcp=%p, queue=%p", "captured", tcp, tcp->queue->head);
+		debug_func_msg("tcp=%p, queue=%p", tcp, tcp->queue->head);
 	}
 }

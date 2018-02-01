@@ -3,6 +3,7 @@
  * Copyright (c) 1996-2000 Wichert Akkerman <wichert@cistron.nl>
  * Copyright (c) 2005-2007 Roland McGrath <roland@redhat.com>
  * Copyright (c) 2008-2015 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2014-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -291,7 +292,7 @@ SYS_FUNC(prctl)
 			return RVAL_DECODED;
 		if (SECCOMP_MODE_FILTER == arg2) {
 			tprints(", ");
-			print_seccomp_filter(tcp, arg3);
+			decode_seccomp_fprog(tcp, arg3);
 			return RVAL_DECODED;
 		}
 		print_prctl_args(tcp, 2);
@@ -349,8 +350,7 @@ SYS_FUNC(prctl)
 	return 0;
 }
 
-#if defined X86_64 || defined X32
-# include <asm/prctl.h>
+#if defined X86_64 || defined X32 || defined I386
 # include "xlat/archvals.h"
 
 SYS_FUNC(arch_prctl)
@@ -374,4 +374,4 @@ SYS_FUNC(arch_prctl)
 	tprintf(", %#" PRI_klx, addr);
 	return RVAL_DECODED;
 }
-#endif /* X86_64 || X32 */
+#endif /* X86_64 || X32 || I386 */

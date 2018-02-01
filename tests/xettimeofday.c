@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2015-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +73,7 @@ main(void)
 	       tz->tz_minuteswest, tz->tz_dsttime);
 
 	tv->tv_sec = (time_t) 0xcafef00ddeadbeefLL;
-	tv->tv_usec = (long) 0xbadc0dedfacefeedLL;
+	tv->tv_usec = (suseconds_t) 0xbadc0dedfacefeedLL;
 	assert(syscall(__NR_settimeofday, tv, tz) == -1);
 	printf("settimeofday({tv_sec=%lld, tv_usec=%llu}"
 	       ", {tz_minuteswest=%d, tz_dsttime=%d}) = -1 EINVAL (%m)\n",

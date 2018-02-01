@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2013-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +70,7 @@ main(int ac, const char **av)
 	if (listen(0, 5))
 		perror_msg_and_skip("listen");
 
-	memset(&addr, 0, sizeof addr);
+	memset(&addr, 0, sizeof(addr));
 	assert(getsockname(0, (struct sockaddr *) &addr, &len) == 0);
 	if (len > sizeof(addr))
 		len = sizeof(addr);

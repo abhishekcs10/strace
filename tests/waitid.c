@@ -2,6 +2,7 @@
  * Check decoding of waitid syscall.
  *
  * Copyright (c) 2015-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,7 +111,8 @@ si_code_2_name(const int code)
 #ifdef CLD_CONTINUED
 	CASE(CLD_CONTINUED);
 #endif
-	default: perror_msg_and_fail("unknown si_code %d", code);
+	default:
+		perror_msg_and_fail("unknown si_code %d", code);
 	}
 }
 

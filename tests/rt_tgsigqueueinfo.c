@@ -2,6 +2,7 @@
  * This file is part of rt_tgsigqueueinfo strace test.
  *
  * Copyright (c) 2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +50,7 @@ k_tgsigqueueinfo(const pid_t pid, const int sig, const void *const info)
 }
 
 int
-main (void)
+main(void)
 {
 	const struct sigaction sa = {
 		.sa_handler = SIG_IGN
@@ -64,7 +65,8 @@ main (void)
 	info->si_code = SI_QUEUE;
 	info->si_pid = getpid();
 	info->si_uid = getuid();
-	info->si_value.sival_ptr = (void *) (unsigned long) 0xdeadbeeffacefeedULL;
+	info->si_value.sival_ptr =
+		(void *) (unsigned long) 0xdeadbeeffacefeedULL;
 
 	if (k_tgsigqueueinfo(info->si_pid, SIGUSR1, info))
 		(errno == ENOSYS ? perror_msg_and_skip : perror_msg_and_fail)(

@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2016 Mikulas Patocka <mpatocka@redhat.com>
  * Copyright (c) 2016 Eugene Syromyatnikov <evgsyr@gmail.com>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +53,10 @@
 	(((s_) + (ALIGNOF(t_) - 1UL)) & ~(ALIGNOF(t_) - 1UL))
 # define ALIGNED_OFFSET(t_, m_) \
 	ALIGNED_SIZE(offsetof(t_, m_), t_)
+
+#  ifndef DM_DEV_ARM_POLL
+#   define DM_DEV_ARM_POLL     _IOWR(DM_IOCTL, 0x10, struct dm_ioctl)
+#  endif
 
 static const char str129[] = STR32 STR32 STR32 STR32 "6";
 
@@ -181,6 +186,7 @@ main(void)
 		{ ARG_STR(DM_TABLE_CLEAR),   false },
 		{ ARG_STR(DM_TABLE_DEPS),    true  },
 		{ ARG_STR(DM_TABLE_STATUS),  true  },
+		{ ARG_STR(DM_DEV_ARM_POLL),  false },
 	};
 
 	struct dm_ioctl *unaligned_dm_arg =
@@ -250,7 +256,7 @@ main(void)
 	strncpy(dm_arg->uuid, str129, sizeof(dm_arg->uuid));
 	ioctl(-1, DM_VERSION, dm_arg);
 	printf("ioctl(-1, DM_VERSION, {version=4.1.2, data_size=%zu, "
-	       "dev=makedev(18, 52), name=\"%.127s\", uuid=\"%.128s\", "
+	       "dev=makedev(18, 52), name=\"%.127s\"..., uuid=\"%.128s\"..., "
 	       "flags=0}) = -1 EBADF (%m)\n",
 	       min_sizeof_dm_ioctl, str129, str129);
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2015-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -108,7 +109,7 @@ int main(int ac, char **av)
 	 * but with a pointer to a large chunk of valid memory.
 	 */
 	FD_ZERO(set[0]);
-	FD_SET(fds[1],set[0]);
+	FD_SET(fds[1], set[0]);
 	assert(pselect(-1, NULL, set[0], NULL, NULL, &mask) == -1);
 	printf("pselect6(-1, NULL, %p, NULL, NULL, {[HUP CHLD], %u}) "
 	       "= -1 EINVAL (%m)\n", set[0], NSIG_BYTES);
@@ -117,7 +118,7 @@ int main(int ac, char **av)
 	 * Another variant, with nfds exceeding FD_SETSIZE limit.
 	 */
 	FD_ZERO(set[0]);
-	FD_SET(fds[0],set[0]);
+	FD_SET(fds[0], set[0]);
 	FD_ZERO(set[1]);
 	tm.ts.tv_sec = 0;
 	tm.ts.tv_nsec = 123;

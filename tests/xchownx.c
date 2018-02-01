@@ -2,6 +2,7 @@
  * Check decoding of chown/chown32/lchown/lchown32/fchown/fchown32 syscalls.
  *
  * Copyright (c) 2016 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2016-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,10 +46,17 @@
 # define CHECK_OVERFLOWGID(arg)
 #endif
 
-#define UNLINK_SAMPLE \
-	if (unlink(sample)) perror_msg_and_fail("unlink")
-#define CLOSE_SAMPLE \
-	if (close(fd)) perror_msg_and_fail("close")
+#define UNLINK_SAMPLE					\
+	do {						\
+		if (unlink(sample))			\
+			perror_msg_and_fail("unlink");	\
+	} while (0)
+
+#define CLOSE_SAMPLE					\
+	do {						\
+		if (close(fd))				\
+			perror_msg_and_fail("close");	\
+	} while (0)
 
 #ifdef ACCESS_BY_DESCRIPTOR
 # define SYSCALL_ARG1 fd

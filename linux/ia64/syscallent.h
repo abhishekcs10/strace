@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1999, 2001 Hewlett-Packard Co
  *                          David Mosberger-Tang <davidm@hpl.hp.com>
+ * Copyright (c) 2000-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -279,12 +280,12 @@
 [1259] = { 6,	TM,		SEN(mbind),			"mbind"			},
 [1260] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		},
 [1261] = { 3,	TM,		SEN(set_mempolicy),		"set_mempolicy"		},
-[1262] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[1262] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [1263] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[1264] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[1265] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[1266] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[1267] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[1264] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[1265] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[1266] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[1267] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [1268] = { 4,	0,		SEN(kexec_load),		"kexec_load"		},
 [1269] = { 5,	0,		SEN(vserver),			"vserver"		},
 [1270] = { 5,	TP,		SEN(waitid),			"waitid"		},
@@ -295,7 +296,7 @@
 [1275] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [1276] = { 6,	TM,		SEN(move_pages),		"move_pages"		},
 [1277] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[1278] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[1278] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [1279] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [1280] = { 4,	TM,		SEN(migrate_pages),		"migrate_pages"		},
 [1281] = { 4,	TD|TF,		SEN(openat),			"openat"		},

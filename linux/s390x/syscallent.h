@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2000 IBM Deutschland Entwicklung GmbH, IBM Coporation
+ * Copyright (c) 2000-2017 The strace developers.
  * Author: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
  * All rights reserved.
  *
@@ -283,12 +284,12 @@
 [268] = { 6,	TM,		SEN(mbind),			"mbind"			},
 [269] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		},
 [270] = { 3,	TM,		SEN(set_mempolicy),		"set_mempolicy"		},
-[271] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[271] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [272] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[273] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[274] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[275] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[276] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[273] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[274] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[275] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[276] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [277] = { 4,	0,		SEN(kexec_load),		"kexec_load"		},
 [278] = { 5,	0,		SEN(add_key),			"add_key"		},
 [279] = { 4,	0,		SEN(request_key),		"request_key"		},
@@ -297,7 +298,7 @@
 [282] = { 3,	0,		SEN(ioprio_set),		"ioprio_set"		},
 [283] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [284] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[285] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[285] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [286] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [287] = { 4,	TM,		SEN(migrate_pages),		"migrate_pages"		},
 [288] = { 4,	TD|TF,		SEN(openat),			"openat"		},
@@ -354,7 +355,7 @@
 [339] = { 2,	TD,		SEN(setns),			"setns"			},
 [340] = { 6,	0,		SEN(process_vm_readv),		"process_vm_readv"	},
 [341] = { 6,	0,		SEN(process_vm_writev),		"process_vm_writev"	},
-[342] = { 2,	0,		SEN(printargs),			"s390_runtime_instr"	},
+[342] = { 2,	0,		SEN(s390_runtime_instr),	"s390_runtime_instr"	},
 [343] = { 5,	0,		SEN(kcmp),			"kcmp"			},
 [344] = { 3,	TD,		SEN(finit_module),		"finit_module"		},
 [345] = { 3,	0,		SEN(sched_setattr),		"sched_setattr"		},
@@ -364,8 +365,8 @@
 [349] = { 3,	0,		SEN(getrandom),			"getrandom"		},
 [350] = { 2,	TD,		SEN(memfd_create),		"memfd_create"		},
 [351] = { 3,	TD,		SEN(bpf),			"bpf"			},
-[352] = { 3,	0,		SEN(printargs),			"s390_pci_mmio_write"	},
-[353] = { 3,	0,		SEN(printargs),			"s390_pci_mmio_read"	},
+[352] = { 3,	0,		SEN(s390_pci_mmio_write),	"s390_pci_mmio_write"	},
+[353] = { 3,	0,		SEN(s390_pci_mmio_read),	"s390_pci_mmio_read"	},
 [354] = { 5,	TD|TF|TP|SE|SI,	SEN(execveat),			"execveat"		},
 [355] = { 1,	TD,		SEN(userfaultfd),		"userfaultfd"		},
 [356] = { 2,	0,		SEN(membarrier),		"membarrier"		},
@@ -390,8 +391,9 @@
 [375] = { 6,	TD,		SEN(copy_file_range),		"copy_file_range"	},
 [376] = { 6,	TD,		SEN(preadv2),			"preadv2"		},
 [377] = { 6,	TD,		SEN(pwritev2),			"pwritev2"		},
-[378] = { },
+[378] = { 2,	0,		SEN(s390_guarded_storage),	"s390_guarded_storage"	},
 [379] = { 5,	TD|TF|TSTA,	SEN(statx),			"statx"			},
+[380] = { 4,	0,		SEN(s390_sthyi),		"s390_sthyi"		},
 
 #define SYS_socket_subcall	400
 #include "subcall.h"

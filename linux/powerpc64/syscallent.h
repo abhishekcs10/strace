@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995 Rick Sladkey <jrs@world.std.com>
+ * Copyright (c) 1995-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,8 +95,8 @@
 [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
 [ 66] = { 0,	0,		SEN(setsid),			"setsid"		},
 [ 67] = { 3,	TS,		SEN(sigaction),			"sigaction"		},
-[ 68] = { 0,	TS,		SEN(siggetmask),		"sgetmask"		},
-[ 69] = { 1,	TS,		SEN(sigsetmask),		"ssetmask"		},
+[ 68] = { 0,	TS,		SEN(sgetmask),			"sgetmask"		},
+[ 69] = { 1,	TS,		SEN(ssetmask),			"ssetmask"		},
 [ 70] = { 2,	0,		SEN(setreuid),			"setreuid"		},
 [ 71] = { 2,	0,		SEN(setregid),			"setregid"		},
 [ 72] = { 1,	TS,		SEN(sigsuspend),		"sigsuspend"		},
@@ -283,12 +284,12 @@
 [259] = { 6,	TM,		SEN(mbind),			"mbind"			},
 [260] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		},
 [261] = { 3,	TM,		SEN(set_mempolicy),		"set_mempolicy"		},
-[262] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[262] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [263] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[264] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[265] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[266] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[267] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[264] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[265] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[266] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[267] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [268] = { 4,	0,		SEN(kexec_load),		"kexec_load"		},
 [269] = { 5,	0,		SEN(add_key),			"add_key"		},
 [270] = { 4,	0,		SEN(request_key),		"request_key"		},
@@ -297,7 +298,7 @@
 [273] = { 3,	0,		SEN(ioprio_set),		"ioprio_set"		},
 [274] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [275] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[276] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[276] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [277] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [278] = { 3,	0,		SEN(printargs),			"spu_run"		},
 [279] = { 4,	0,		SEN(printargs),			"spu_create"		},
@@ -404,6 +405,7 @@
 [380] = { 6,	TD,		SEN(preadv2),			"preadv2"		},
 [381] = { 6,	TD,		SEN(pwritev2),			"pwritev2"		},
 [382] = { 5,	TD,		SEN(kexec_file_load),		"kexec_file_load"	},
+[383] = { 5,	TD|TF|TSTA,	SEN(statx),			"statx"			},
 
 #define SYS_socket_subcall	400
 #include "subcall.h"

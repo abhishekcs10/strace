@@ -33,6 +33,8 @@ typedef struct timeval timeval_t;
 
 #include MPERS_DEFS
 
+#include "xstring.h"
+
 static const char timeval_fmt[]  = "{tv_sec=%lld, tv_usec=%llu}";
 
 static void
@@ -53,6 +55,18 @@ print_timeval_t_utime(const timeval_t *t)
 MPERS_PRINTER_DECL(void, print_struct_timeval, const void *arg)
 {
 	print_timeval_t(arg);
+}
+
+MPERS_PRINTER_DECL(bool, print_struct_timeval_data_size,
+		   const void *arg, const size_t size)
+{
+	if (size < sizeof(timeval_t)) {
+		tprints("?");
+		return false;
+	}
+
+	print_timeval_t(arg);
+	return true;
 }
 
 MPERS_PRINTER_DECL(void, print_timeval,
@@ -91,9 +105,9 @@ MPERS_PRINTER_DECL(const char *, sprint_timeval,
 		strcpy(buf, "NULL");
 	} else if (!verbose(tcp) || (exiting(tcp) && syserror(tcp)) ||
 		   umove(tcp, addr, &t)) {
-		snprintf(buf, sizeof(buf), "%#" PRI_klx, addr);
+		xsprintf(buf, "%#" PRI_klx, addr);
 	} else {
-		snprintf(buf, sizeof(buf), timeval_fmt,
+		xsprintf(buf, timeval_fmt,
 			 (long long) t.tv_sec,
 			 zero_extend_signed_to_ull(t.tv_usec));
 	}
@@ -184,9 +198,9 @@ sprint_timeval32(struct tcb *const tcp, const kernel_ulong_t addr)
 		strcpy(buf, "NULL");
 	} else if (!verbose(tcp) || (exiting(tcp) && syserror(tcp)) ||
 		   umove(tcp, addr, &t)) {
-		snprintf(buf, sizeof(buf), "%#" PRI_klx, addr);
+		xsprintf(buf, "%#" PRI_klx, addr);
 	} else {
-		snprintf(buf, sizeof(buf), timeval_fmt,
+		xsprintf(buf, timeval_fmt,
 			 (long long) t.tv_sec,
 			 zero_extend_signed_to_ull(t.tv_usec));
 	}

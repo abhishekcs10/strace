@@ -10,13 +10,13 @@ static int
 arch_set_error(struct tcb *tcp)
 {
 #ifdef HAVE_GETREGS_OLD
-	x86_64_regs.rax = - (long long) tcp->u_error;
-	return upoke(tcp->pid, 8 * RAX, x86_64_regs.rax);
+	x86_64_regs.rax = -(long long) tcp->u_error;
+	return upoke(tcp, 8 * RAX, x86_64_regs.rax);
 #else
 	if (x86_io.iov_len == sizeof(i386_regs))
 		return i386_set_error(tcp);
 
-	x86_64_regs.rax = - (long long) tcp->u_error;
+	x86_64_regs.rax = -(long long) tcp->u_error;
 	return set_regs(tcp->pid);
 #endif
 }
@@ -26,7 +26,7 @@ arch_set_success(struct tcb *tcp)
 {
 #ifdef HAVE_GETREGS_OLD
 	x86_64_regs.rax = (long long) tcp->u_rval;
-	return upoke(tcp->pid, 8 * RAX, x86_64_regs.rax);
+	return upoke(tcp, 8 * RAX, x86_64_regs.rax);
 #else
 	if (x86_io.iov_len == sizeof(i386_regs))
 		return i386_set_success(tcp);

@@ -5,6 +5,7 @@
  * Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
  * Copyright (c) 2003-2006 Roland McGrath <roland@redhat.com>
  * Copyright (c) 2006-2015 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2015-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +39,14 @@
 # include <linux/shm.h>
 #endif
 
+#ifndef SHM_HUGE_SHIFT
+# define SHM_HUGE_SHIFT 26
+#endif
+
+#ifndef SHM_HUGE_MASK
+# define SHM_HUGE_MASK 0x3f
+#endif
+
 #include "xlat/shm_resource_flags.h"
 #include "xlat/shm_flags.h"
 
@@ -49,9 +58,24 @@ SYS_FUNC(shmget)
 	else
 		tprints("IPC_PRIVATE");
 	tprintf(", %" PRI_klu ", ", tcp->u_arg[1]);
-	if (printflags(shm_resource_flags, tcp->u_arg[2] & ~0777, NULL) != 0)
+
+	unsigned int flags = tcp->u_arg[2] & ~0777;
+	const unsigned int mask = SHM_HUGE_MASK << SHM_HUGE_SHIFT;
+	const unsigned int hugetlb_value = flags & mask;
+
+	flags &= ~mask;
+	if (flags || !hugetlb_value)
+		printflags(shm_resource_flags, flags, NULL);
+
+	if (hugetlb_value)
+		tprintf("%s%u<<SHM_HUGE_SHIFT",
+			flags ? "|" : "",
+			hugetlb_value >> SHM_HUGE_SHIFT);
+
+	if (flags || hugetlb_value)
 		tprints("|");
 	print_numeric_umode_t(tcp->u_arg[2] & 0777);
+
 	return RVAL_DECODED;
 }
 

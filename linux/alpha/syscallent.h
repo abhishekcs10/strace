@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995 Rick Sladkey <jrs@world.std.com>
+ * Copyright (c) 1995-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +75,7 @@
 [ 45] = { 3,	TD|TF,		SEN(open),			"open"			},
 [ 46] = { 5,	0,		SEN(printargs),			"osf_old_sigaction"	}, /* not implemented */
 [ 47] = { 0,	NF,		SEN(getxgid),			"getxgid"		},
-[ 48] = { 2,	TS,		SEN(sigprocmask),		"osf_sigprocmask"	},
+[ 48] = { 2,	TS,		SEN(osf_sigprocmask),		"osf_sigprocmask"	},
 [ 49] = { 5,	0,		SEN(printargs),			"osf_getlogin"		}, /* not implemented */
 [ 50] = { 5,	0,		SEN(printargs),			"osf_setlogin"		}, /* not implemented */
 [ 51] = { 1,	TF,		SEN(acct),			"acct"			},
@@ -394,12 +395,12 @@
 [429] = { 6,	TM,		SEN(mbind),			"mbind"			}, /* not implemented */
 [430] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		}, /* not implemented */
 [431] = { 3,	TM,		SEN(set_mempolicy),		"set_mempolicy"		}, /* not implemented */
-[432] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[432] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [433] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[434] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[435] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[436] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[437] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[434] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[435] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[436] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[437] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [438] = { 5,	TP,		SEN(waitid),			"waitid"		},
 [439] = { 5,	0,		SEN(add_key),			"add_key"		},
 [440] = { 4,	0,		SEN(request_key),		"request_key"		},
@@ -407,7 +408,7 @@
 [442] = { 3,	0,		SEN(ioprio_set),		"ioprio_set"		},
 [443] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [444] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[445] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[445] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [446] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [447] = { 1,	TD,		SEN(fdatasync),			"fdatasync"		},
 [448] = { 4,	0,		SEN(kexec_load),		"kexec_load"		},
@@ -476,3 +477,12 @@
 [511] = { 3,	0,		SEN(getrandom),			"getrandom"		},
 [512] = { 2,	TD,		SEN(memfd_create),		"memfd_create"		},
 [513] = { 5,	TD|TF|TP|SE|SI,	SEN(execveat),			"execveat"		},
+[514] = { 3,	0,		SEN(seccomp),			"seccomp"		},
+[515] = { 3,	TD,		SEN(bpf),			"bpf"			},
+[516] = { 1,	TD,		SEN(userfaultfd),		"userfaultfd"		},
+[517] = { 2,	0,		SEN(membarrier),		"membarrier"		},
+[518] = { 3,	TM,		SEN(mlock2),			"mlock2"		},
+[519] = { 6,	TD,		SEN(copy_file_range),		"copy_file_range"	},
+[520] = { 6,	TD,		SEN(preadv2),			"preadv2"		},
+[521] = { 6,	TD,		SEN(pwritev2),			"pwritev2"		},
+[522] = { 5,	TD|TF|TSTA,	SEN(statx),			"statx"			},

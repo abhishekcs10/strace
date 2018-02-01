@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995 Rick Sladkey <jrs@world.std.com>
+ * Copyright (c) 1995-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,8 +95,8 @@
 [ 65] = { 0,	0,		SEN(getpgrp),			"getpgrp"		},
 [ 66] = { 0,	0,		SEN(setsid),			"setsid"		},
 [ 67] = { 3,	TS,		SEN(sigaction),			"sigaction"		},
-[ 68] = { 0,	TS,		SEN(siggetmask),		"sgetmask"		},
-[ 69] = { 1,	TS,		SEN(sigsetmask),		"ssetmask"		},
+[ 68] = { 0,	TS,		SEN(sgetmask),			"sgetmask"		},
+[ 69] = { 1,	TS,		SEN(ssetmask),			"ssetmask"		},
 [ 70] = { 2,	0,		SEN(setreuid16),		"setreuid"		},
 [ 71] = { 2,	0,		SEN(setregid16),		"setregid"		},
 [ 72] = { 3,	TS,		SEN(sigsuspend),		"sigsuspend"		},
@@ -298,12 +299,12 @@
 [271] = { 3,	0,		SEN(printargs),			"pciconfig_iobase"	},
 [272] = { 5,	0,		SEN(printargs),			"pciconfig_read"	},
 [273] = { 5,	0,		SEN(printargs),			"pciconfig_write"	},
-[274] = { 4,	0,		SEN(mq_open),			"mq_open"		},
+[274] = { 4,	TD,		SEN(mq_open),			"mq_open"		},
 [275] = { 1,	0,		SEN(mq_unlink),			"mq_unlink"		},
-[276] = { 5,	0,		SEN(mq_timedsend),		"mq_timedsend"		},
-[277] = { 5,	0,		SEN(mq_timedreceive),		"mq_timedreceive"	},
-[278] = { 2,	0,		SEN(mq_notify),			"mq_notify"		},
-[279] = { 3,	0,		SEN(mq_getsetattr),		"mq_getsetattr"		},
+[276] = { 5,	TD,		SEN(mq_timedsend),		"mq_timedsend"		},
+[277] = { 5,	TD,		SEN(mq_timedreceive),		"mq_timedreceive"	},
+[278] = { 2,	TD,		SEN(mq_notify),			"mq_notify"		},
+[279] = { 3,	TD,		SEN(mq_getsetattr),		"mq_getsetattr"		},
 [280] = { 5,	TP,		SEN(waitid),			"waitid"		},
 [281] = { 3,	TN,		SEN(socket),			"socket"		},
 [282] = { 3,	TN,		SEN(bind),			"bind"			},
@@ -341,7 +342,7 @@
 [314] = { 3,	0,		SEN(ioprio_set),		"ioprio_set"		},
 [315] = { 2,	0,		SEN(ioprio_get),		"ioprio_get"		},
 [316] = { 0,	TD,		SEN(inotify_init),		"inotify_init"		},
-[317] = { 3,	TD,		SEN(inotify_add_watch),		"inotify_add_watch"	},
+[317] = { 3,	TD|TF,		SEN(inotify_add_watch),		"inotify_add_watch"	},
 [318] = { 2,	TD,		SEN(inotify_rm_watch),		"inotify_rm_watch"	},
 [319] = { 6,	TM,		SEN(mbind),			"mbind"			},
 [320] = { 5,	TM,		SEN(get_mempolicy),		"get_mempolicy"		},
@@ -443,9 +444,10 @@
  * Remapped by shuffle_scno() to be directly after __ARM_NR_cmpxchg.
  */
 [ARM_FIRST_SHUFFLED_SYSCALL+1+0] = { },
-[ARM_FIRST_SHUFFLED_SYSCALL+1+1] = { 5,	0,	SEN(printargs),	"breakpoint"		},
-[ARM_FIRST_SHUFFLED_SYSCALL+1+2] = { 5,	0,	SEN(printargs),	"cacheflush"		},
-[ARM_FIRST_SHUFFLED_SYSCALL+1+3] = { 5,	0,	SEN(printargs),	"usr26"			},
-[ARM_FIRST_SHUFFLED_SYSCALL+1+4] = { 5,	0,	SEN(printargs),	"usr32"			},
-[ARM_FIRST_SHUFFLED_SYSCALL+1+5] = { 5,	0,	SEN(printargs),	"set_tls"		},
-#define ARM_LAST_SPECIAL_SYSCALL 5
+[ARM_FIRST_SHUFFLED_SYSCALL+1+1] = { 0,	0,	SEN(printargs),	"breakpoint"		},
+[ARM_FIRST_SHUFFLED_SYSCALL+1+2] = { 3,	TM,	SEN(printargs),	"cacheflush"		},
+[ARM_FIRST_SHUFFLED_SYSCALL+1+3] = { 0,	0,	SEN(printargs),	"usr26"			},
+[ARM_FIRST_SHUFFLED_SYSCALL+1+4] = { 0,	0,	SEN(printargs),	"usr32"			},
+[ARM_FIRST_SHUFFLED_SYSCALL+1+5] = { 1,	0,	SEN(printargs),	"set_tls"		},
+[ARM_FIRST_SHUFFLED_SYSCALL+1+6] = { 0,	0,	SEN(printargs),	"get_tls"		},
+#define ARM_LAST_SPECIAL_SYSCALL 6

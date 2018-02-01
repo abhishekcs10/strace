@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # Copyright (c) 2011-2016 Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (c) 2011-2017 The strace developers.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -44,7 +45,7 @@ check_prog()
 
 dump_log_and_fail_with()
 {
-	cat < "$LOG"
+	cat < "$LOG" >&2
 	fail_ "$*"
 }
 
@@ -168,7 +169,7 @@ match_diff()
 
 	check_prog diff
 
-	diff -- "$expected" "$output" ||
+	diff -u -- "$expected" "$output" ||
 		fail_ "$error"
 }
 
@@ -340,6 +341,7 @@ case "$ME_" in
 	*) NAME=
 esac
 
+STRACE_EXE=
 if [ -n "$NAME" ]; then
 	TESTDIR="$NAME.dir"
 	rm -rf -- "$TESTDIR"
@@ -355,17 +357,23 @@ if [ -n "$NAME" ]; then
 		STRACE=../../strace
 		case "${LOG_COMPILER-} ${LOG_FLAGS-}" in
 			*--suppressions=*--error-exitcode=*--tool=*)
+			STRACE_EXE="$STRACE"
 			# add valgrind command prefix
 			STRACE="${LOG_COMPILER-} ${LOG_FLAGS-} $STRACE"
 			;;
 		esac
 	}
+
+	trap 'dump_log_and_fail_with "time limit ($TIMEOUT_DURATION) exceeded"' XCPU
 else
-	[ -n "${STRACE-}" ] ||
-		STRACE=../strace
+	: "${STRACE:=../strace}"
 fi
 
-: "${TIMEOUT_DURATION:=120}"
+# Export $STRACE_EXE to check_PROGRAMS.
+: "${STRACE_EXE:=$STRACE}"
+export STRACE_EXE
+
+: "${TIMEOUT_DURATION:=600}"
 : "${SLEEP_A_BIT:=sleep 1}"
 
 [ -z "${VERBOSE-}" ] ||

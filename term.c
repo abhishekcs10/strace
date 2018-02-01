@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
+ * Copyright (c) 1996-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +42,6 @@ static void
 decode_termios(struct tcb *const tcp, const kernel_ulong_t addr)
 {
 	struct termios tios;
-	int i;
 
 	tprints(", ");
 	if (umove_or_printaddr(tcp, addr, &tios))
@@ -64,10 +64,9 @@ decode_termios(struct tcb *const tcp, const kernel_ulong_t addr)
 	if (!(tios.c_lflag & ICANON))
 		tprintf("c_cc[VMIN]=%d, c_cc[VTIME]=%d, ",
 			tios.c_cc[VMIN], tios.c_cc[VTIME]);
-	tprints("c_cc=\"");
-	for (i = 0; i < NCCS; i++)
-		tprintf("\\x%02x", tios.c_cc[i]);
-	tprints("\"}");
+	tprints("c_cc=");
+	print_quoted_string((char *) tios.c_cc, NCCS, QUOTE_FORCE_HEX);
+	tprints("}");
 }
 
 static void
@@ -287,5 +286,5 @@ term_ioctl(struct tcb *const tcp, const unsigned int code,
 		return RVAL_DECODED;
 	}
 
-	return RVAL_DECODED | 1;
+	return RVAL_IOCTL_DECODED;
 }

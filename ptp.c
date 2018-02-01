@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2014 Stefan Sørensen <stefan.sorensen@spectralink.com>
  * Copyright (c) 2014-2015 Dmitry V. Levin <ldv@altlinux.org>
+ * Copyright (c) 2014-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,10 +28,13 @@
  */
 
 #include "defs.h"
-#include <linux/ioctl.h>
-#include <linux/ptp_clock.h>
 
-#include "xlat/ptp_flags_options.h"
+#ifdef HAVE_STRUCT_PTP_SYS_OFFSET
+
+# include <linux/ioctl.h>
+# include <linux/ptp_clock.h>
+
+# include "xlat/ptp_flags_options.h"
 
 int
 ptp_ioctl(struct tcb *const tcp, const unsigned int code,
@@ -84,7 +88,7 @@ ptp_ioctl(struct tcb *const tcp, const unsigned int code,
 				break;
 
 			tprintf("{n_samples=%u", sysoff.n_samples);
-			return 1;
+			return 0;
 		} else {
 			unsigned int n_samples, i;
 
@@ -135,5 +139,7 @@ ptp_ioctl(struct tcb *const tcp, const unsigned int code,
 		return RVAL_DECODED;
 	}
 
-	return RVAL_DECODED | 1;
+	return RVAL_IOCTL_DECODED;
 }
+
+#endif /* HAVE_STRUCT_PTP_SYS_OFFSET */

@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2014-2015 Mike Frysinger <vapier@gentoo.org>
 # Copyright (c) 2014-2015 Dmitry V. Levin <ldv@altlinux.org>
+# Copyright (c) 2014-2017 The strace developers.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -134,6 +135,9 @@ gen_header()
 	# 1st pass: output directives.
 	while read line; do
 		LC_COLLATE=C
+		line=$(printf "%s" "$line" | \
+			sed "s|[[:space:]]*/\*.*\*/[[:space:]]*||")
+
 		case $line in
 		'#stop')
 			exit 0
@@ -195,6 +199,9 @@ gen_header()
 	# 2nd pass: output everything.
 	while read line; do
 		LC_COLLATE=C
+		line=$(printf "%s" "$line" | \
+			sed "s|[[:space:]]*/\*.*\*/[[:space:]]*||")
+
 		case ${line} in
 		'#conditional')
 			unconditional=
@@ -289,6 +296,7 @@ main()
 	local name
 	local jobs=0
 	local ncpus="$(getconf _NPROCESSORS_ONLN)"
+	local pids=
 	[ "${ncpus}" -ge 1 ] ||
 		ncpus=1
 
@@ -299,15 +307,20 @@ main()
 			name=${f##*/}
 			name=${name%.in}
 			gen_header "${f}" "${output}/${name}.h" "${name}" &
+			pids="$pids $!"
 			names="${names} ${name}"
 			: $(( jobs += 1 ))
-			if [ ${jobs} -ge ${ncpus} ]; then
-				jobs=0
-				wait
-			fi
+			if [ "${jobs}" -gt "$(( ncpus * 2 ))" ]; then
+				read wait_pid rest
+				pids="$rest"
+				wait -n 2>/dev/null || wait "$wait_pid"
+				: $(( jobs -= 1 ))
+			fi <<- EOF
+			$pids
+			EOF
 		done
-		gen_git "${output}/.gitignore" ${names}
-		gen_make "${output}/Makemodule.am" ${names}
+		gen_git "${output}/.gitignore" ${names} &
+		gen_make "${output}/Makemodule.am" ${names} &
 		wait
 	else
 		name=${input##*/}

@@ -3,6 +3,7 @@
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
  * Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
+ * Copyright (c) 1999-2017 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +32,8 @@
 #include "defs.h"
 #include <sys/resource.h>
 
+#include "xstring.h"
+
 #include "xlat/resources.h"
 
 static const char *
@@ -42,9 +45,9 @@ sprint_rlim64(uint64_t lim)
 		return "RLIM64_INFINITY";
 
 	if (lim > 1024 && lim % 1024 == 0)
-		sprintf(buf, "%" PRIu64 "*1024", lim / 1024);
+		xsprintf(buf, "%" PRIu64 "*1024", lim / 1024);
 	else
-		sprintf(buf, "%" PRIu64, lim);
+		xsprintf(buf, "%" PRIu64, lim);
 	return buf;
 }
 
@@ -73,9 +76,9 @@ sprint_rlim32(uint32_t lim)
 		return "RLIM_INFINITY";
 
 	if (lim > 1024 && lim % 1024 == 0)
-		sprintf(buf, "%" PRIu32 "*1024", lim / 1024);
+		xsprintf(buf, "%" PRIu32 "*1024", lim / 1024);
 	else
-		sprintf(buf, "%" PRIu32, lim);
+		xsprintf(buf, "%" PRIu32, lim);
 	return buf;
 }
 
@@ -119,8 +122,7 @@ SYS_FUNC(getrlimit)
 	if (entering(tcp)) {
 		printxval(resources, tcp->u_arg[0], "RLIMIT_???");
 		tprints(", ");
-	}
-	else {
+	} else {
 		decode_rlimit(tcp, tcp->u_arg[1]);
 	}
 	return 0;
@@ -156,8 +158,7 @@ SYS_FUNC(getrusage)
 	if (entering(tcp)) {
 		printxval(usagewho, tcp->u_arg[0], "RUSAGE_???");
 		tprints(", ");
-	}
-	else
+	} else
 		printrusage(tcp, tcp->u_arg[1]);
 	return 0;
 }
@@ -168,8 +169,7 @@ SYS_FUNC(osf_getrusage)
 	if (entering(tcp)) {
 		printxval(usagewho, tcp->u_arg[0], "RUSAGE_???");
 		tprints(", ");
-	}
-	else
+	} else
 		printrusage32(tcp, tcp->u_arg[1]);
 	return 0;
 }
