@@ -1,7 +1,7 @@
 # Automake input for strace tests.
 #
 # Copyright (c) 2011-2016 Dmitry V. Levin <ldv@altlinux.org>
-# Copyright (c) 2011-2017 The strace developers.
+# Copyright (c) 2011-2018 The strace developers.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
 OS = linux
 ARCH = @arch@
 NATIVE_ARCH = @arch_native@
+SIZEOF_KERNEL_LONG_T = @SIZEOF_KERNEL_LONG_T@
+SIZEOF_LONG = @SIZEOF_LONG@
 MPERS_NAME =
 MPERS_CC_FLAGS =
 ARCH_MFLAGS =
@@ -325,6 +327,8 @@ XFAIL_TESTS = $(XFAIL_TESTS_$(MPERS_NAME)) $(XFAIL_TESTS_$(ARCH))
 
 TEST_LOG_COMPILER = env
 AM_TEST_LOG_FLAGS = STRACE_ARCH=$(ARCH) STRACE_NATIVE_ARCH=$(NATIVE_ARCH) \
+			SIZEOF_KERNEL_LONG_T=$(SIZEOF_KERNEL_LONG_T) \
+			SIZEOF_LONG=$(SIZEOF_LONG) \
 			MIPS_ABI=$(MIPS_ABI) $(srcdir)/run.sh
 
 @VALGRIND_CHECK_RULES@
@@ -332,6 +336,7 @@ VALGRIND_FLAGS = --quiet
 VALGRIND_SUPPRESSIONS_FILES = $(abs_srcdir)/strace.supp
 
 EXTRA_DIST = \
+	accept_compat.h \
 	attach-p-cmd.h \
 	caps-abbrev.awk \
 	caps.awk \

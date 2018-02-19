@@ -4,7 +4,7 @@
 # Copyright (c) 2006-2016 Dmitry V. Levin <ldv@altlinux.org>
 # Copyright (c) 2008-2015 Mike Frysinger <vapier@gentoo.org>
 # Copyright (c) 2015 Elvira Khabirova <lineprinter0@gmail.com>
-# Copyright (c) 2002-2017 The strace developers.
+# Copyright (c) 2002-2018 The strace developers.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -169,7 +169,8 @@ strace_SOURCES =	\
 	kexec.c		\
 	keyctl.c	\
 	keyctl_kdf_params.h \
-	kvm.c \
+	kvm.c		\
+	largefile_wrappers.h \
 	ldt.c		\
 	link.c		\
 	linux/asm_stat.h \
@@ -393,22 +394,24 @@ EXTRA_DIST =				\
 	linux/aarch64/arch_defs_.h	\
 	linux/aarch64/arch_regs.c	\
 	linux/aarch64/arch_regs.h	\
-	linux/aarch64/arch_rt_sigframe.c\
+	linux/aarch64/arch_rt_sigframe.c	\
 	linux/aarch64/arch_sigreturn.c	\
 	linux/aarch64/errnoent1.h	\
 	linux/aarch64/get_error.c	\
 	linux/aarch64/get_scno.c	\
-	linux/aarch64/get_syscall_args.c\
+	linux/aarch64/get_syscall_args.c	\
 	linux/aarch64/ioctls_arch0.h	\
 	linux/aarch64/ioctls_arch1.h	\
 	linux/aarch64/ioctls_inc0.h	\
 	linux/aarch64/ioctls_inc1.h	\
+	linux/aarch64/nr_prefix.c	\
 	linux/aarch64/set_error.c	\
 	linux/aarch64/set_scno.c	\
+	linux/aarch64/shuffle_scno.c	\
 	linux/aarch64/signalent1.h	\
 	linux/aarch64/syscallent.h	\
 	linux/aarch64/syscallent1.h	\
-	linux/alpha/arch_defs_.h		\
+	linux/alpha/arch_defs_.h	\
 	linux/alpha/arch_getrval2.c	\
 	linux/alpha/arch_regs.c		\
 	linux/alpha/arch_regs.h		\
@@ -418,7 +421,7 @@ EXTRA_DIST =				\
 	linux/alpha/get_error.c		\
 	linux/alpha/get_scno.c		\
 	linux/alpha/get_syscall_args.c	\
-	linux/alpha/get_syscall_result.c\
+	linux/alpha/get_syscall_result.c	\
 	linux/alpha/ioctls_arch0.h	\
 	linux/alpha/ioctls_inc0.h	\
 	linux/alpha/set_error.c		\
@@ -451,8 +454,10 @@ EXTRA_DIST =				\
 	linux/arm/get_syscall_args.c	\
 	linux/arm/ioctls_arch0.h	\
 	linux/arm/ioctls_inc0.h		\
+	linux/arm/nr_prefix.c		\
 	linux/arm/set_error.c		\
 	linux/arm/set_scno.c		\
+	linux/arm/shuffle_scno.c	\
 	linux/arm/syscallent.h		\
 	linux/arm/userent.h		\
 	linux/avr32/arch_regs.c		\
@@ -561,7 +566,7 @@ EXTRA_DIST =				\
 	linux/metag/syscallent.h	\
 	linux/microblaze/arch_defs_.h	\
 	linux/microblaze/arch_regs.c	\
-	linux/microblaze/arch_rt_sigframe.c\
+	linux/microblaze/arch_rt_sigframe.c	\
 	linux/microblaze/arch_sigreturn.c	\
 	linux/microblaze/get_error.c	\
 	linux/microblaze/get_scno.c	\
@@ -597,6 +602,7 @@ EXTRA_DIST =				\
 	linux/mips/syscallent.h		\
 	linux/mips/userent.h		\
 	linux/netlink_diag.h		\
+	linux/nios2/arch_defs_.h	\
 	linux/nios2/arch_regs.c		\
 	linux/nios2/arch_regs.h		\
 	linux/nios2/arch_rt_sigframe.c	\
@@ -608,6 +614,7 @@ EXTRA_DIST =				\
 	linux/nios2/set_error.c		\
 	linux/nios2/set_scno.c		\
 	linux/nios2/syscallent.h	\
+	linux/nr_prefix.c		\
 	linux/or1k/arch_regs.c		\
 	linux/or1k/arch_regs.h		\
 	linux/or1k/arch_rt_sigframe.c	\
@@ -624,7 +631,7 @@ EXTRA_DIST =				\
 	linux/powerpc/arch_defs_.h	\
 	linux/powerpc/arch_regs.c	\
 	linux/powerpc/arch_regs.h	\
-	linux/powerpc/arch_rt_sigframe.c\
+	linux/powerpc/arch_rt_sigframe.c	\
 	linux/powerpc/arch_sigreturn.c	\
 	linux/powerpc/errnoent.h	\
 	linux/powerpc/get_error.c	\
@@ -641,7 +648,7 @@ EXTRA_DIST =				\
 	linux/powerpc64/arch_defs_.h	\
 	linux/powerpc64/arch_regs.c	\
 	linux/powerpc64/arch_regs.h	\
-	linux/powerpc64/arch_rt_sigframe.c\
+	linux/powerpc64/arch_rt_sigframe.c	\
 	linux/powerpc64/arch_sigreturn.c	\
 	linux/powerpc64/errnoent.h	\
 	linux/powerpc64/errnoent1.h	\
@@ -661,7 +668,7 @@ EXTRA_DIST =				\
 	linux/powerpc64/syscallent.h	\
 	linux/powerpc64/syscallent1.h	\
 	linux/powerpc64/userent.h	\
-	linux/riscv/arch_defs_.h		\
+	linux/riscv/arch_defs_.h	\
 	linux/riscv/arch_regs.c		\
 	linux/riscv/arch_regs.h		\
 	linux/riscv/arch_rt_sigframe.c	\
@@ -696,7 +703,7 @@ EXTRA_DIST =				\
 	linux/s390/userent.h		\
 	linux/s390/userent0.h		\
 	linux/s390/userent1.h		\
-	linux/s390x/arch_defs_.h		\
+	linux/s390x/arch_defs_.h	\
 	linux/s390x/arch_regs.c		\
 	linux/s390x/arch_regs.h		\
 	linux/s390x/arch_rt_sigframe.c	\
@@ -746,17 +753,17 @@ EXTRA_DIST =				\
 	linux/sh64/set_scno.c		\
 	linux/sh64/syscallent.h		\
 	linux/sh64/userent.h		\
+	linux/shuffle_scno.c		\
 	linux/signalent.h		\
 	linux/smc_diag.h		\
 	linux/sock_diag.h		\
-	linux/sparc/arch_defs_.h		\
+	linux/sparc/arch_defs_.h	\
 	linux/sparc/arch_getrval2.c	\
 	linux/sparc/arch_regs.c		\
 	linux/sparc/arch_regs.h		\
 	linux/sparc/arch_rt_sigframe.c	\
 	linux/sparc/arch_sigreturn.c	\
 	linux/sparc/errnoent.h		\
-	linux/sparc/gen.pl		\
 	linux/sparc/get_error.c		\
 	linux/sparc/get_scno.c		\
 	linux/sparc/get_syscall_args.c	\
@@ -772,13 +779,13 @@ EXTRA_DIST =				\
 	linux/sparc64/arch_getrval2.c	\
 	linux/sparc64/arch_regs.c	\
 	linux/sparc64/arch_regs.h	\
-	linux/sparc64/arch_rt_sigframe.c\
+	linux/sparc64/arch_rt_sigframe.c	\
 	linux/sparc64/arch_sigreturn.c	\
 	linux/sparc64/errnoent.h	\
 	linux/sparc64/errnoent1.h	\
 	linux/sparc64/get_error.c	\
 	linux/sparc64/get_scno.c	\
-	linux/sparc64/get_syscall_args.c\
+	linux/sparc64/get_syscall_args.c	\
 	linux/sparc64/ioctls_arch0.h	\
 	linux/sparc64/ioctls_arch1.h	\
 	linux/sparc64/ioctls_inc0.h	\
@@ -833,6 +840,7 @@ EXTRA_DIST =				\
 	linux/x32/rt_sigframe.h		\
 	linux/x32/set_error.c		\
 	linux/x32/set_scno.c		\
+	linux/x32/shuffle_scno.c	\
 	linux/x32/signalent1.h		\
 	linux/x32/syscallent.h		\
 	linux/x32/syscallent1.h		\
@@ -845,7 +853,6 @@ EXTRA_DIST =				\
 	linux/x86_64/arch_sigreturn.c	\
 	linux/x86_64/errnoent1.h	\
 	linux/x86_64/errnoent2.h	\
-	linux/x86_64/gentab.pl		\
 	linux/x86_64/get_error.c	\
 	linux/x86_64/get_scno.c		\
 	linux/x86_64/get_syscall_args.c	\
@@ -860,6 +867,7 @@ EXTRA_DIST =				\
 	linux/x86_64/rt_sigframe.h	\
 	linux/x86_64/set_error.c	\
 	linux/x86_64/set_scno.c		\
+	linux/x86_64/shuffle_scno.c	\
 	linux/x86_64/signalent1.h	\
 	linux/x86_64/signalent2.h	\
 	linux/x86_64/syscallent.h	\
@@ -889,7 +897,7 @@ EXTRA_DIST =				\
 	$(XLAT_INPUT_FILES)		\
 	$(XLAT_HEADER_FILES)		\
 	xlat/gen.sh			\
-	xlate.el
+	# end of EXTRA_DIST
 
 .PHONY: check-valgrind-local
 check-valgrind-local:

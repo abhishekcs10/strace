@@ -2,7 +2,7 @@
  * Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
- * Copyright (c) 2001-2017 The strace developers.
+ * Copyright (c) 2001-2018 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -181,7 +181,7 @@ typedef struct ioctlent {
 struct inject_data {
 	uint16_t flags;
 	uint16_t signo;
-	int rval;
+	kernel_long_t rval;
 };
 
 struct inject_opts {
@@ -400,13 +400,32 @@ extern int get_scno(struct tcb *);
 extern kernel_ulong_t get_rt_sigframe_addr(struct tcb *);
 
 /**
- * Convert syscall number to syscall name.
+ * Convert a (shuffled) syscall number to the corresponding syscall name.
  *
  * @param scno Syscall number.
  * @return     String literal corresponding to the syscall number in case latter
  *             is valid; NULL otherwise.
  */
 extern const char *syscall_name(kernel_ulong_t scno);
+/**
+ * Convert a syscall name to the corresponding (shuffled) syscall number.
+ *
+ * @param s     Syscall name.
+ * @param p     Personality.
+ * @param start From which position in syscall entry table resume the search.
+ * @return      Shuffled syscall number (ready to use against sysent_vec)
+ *              if syscall name is found; -1 otherwise.
+ */
+extern kernel_long_t scno_by_name(const char *s, unsigned p,
+				  kernel_long_t start);
+/**
+ * Shuffle syscall numbers so that we don't have huge gaps in syscall table.
+ * The shuffling should be an involution: shuffle_scno(shuffle_scno(n)) == n.
+ *
+ * @param scno Raw or shuffled syscall number.
+ * @return     Shuffled or raw syscall number, respectively.
+ */
+extern kernel_ulong_t shuffle_scno(kernel_ulong_t scno);
 extern const char *err_name(unsigned long err);
 
 extern bool is_erestart(struct tcb *);

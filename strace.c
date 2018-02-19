@@ -3,7 +3,7 @@
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
  * Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
- * Copyright (c) 1999-2017 The strace developers.
+ * Copyright (c) 1999-2018 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,9 @@
 
 #include "defs.h"
 #include <stdarg.h>
-#include <sys/param.h>
+#include <limits.h>
 #include <fcntl.h>
+#include "ptrace.h"
 #include <signal.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
@@ -49,9 +50,9 @@
 #endif
 #include <asm/unistd.h>
 
+#include "largefile_wrappers.h"
 #include "number_set.h"
 #include "scno.h"
-#include "ptrace.h"
 #include "printsiginfo.h"
 #include "trace_event.h"
 #include "xstring.h"
@@ -446,28 +447,6 @@ swap_uid(void)
 		perror_msg_and_die("setreuid");
 	}
 }
-
-#ifdef _LARGEFILE64_SOURCE
-# ifdef HAVE_FOPEN64
-#  define fopen_for_output fopen64
-# else
-#  define fopen_for_output fopen
-# endif
-# define struct_stat struct stat64
-# define stat_file stat64
-# define struct_dirent struct dirent64
-# define read_dir readdir64
-# define struct_rlimit struct rlimit64
-# define set_rlimit setrlimit64
-#else
-# define fopen_for_output fopen
-# define struct_stat struct stat
-# define stat_file stat
-# define struct_dirent struct dirent
-# define read_dir readdir
-# define struct_rlimit struct rlimit
-# define set_rlimit setrlimit
-#endif
 
 static FILE *
 strace_fopen(const char *path)

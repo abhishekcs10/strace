@@ -6,7 +6,7 @@
  * Copyright (c) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
  *                     Linux for s390 port by D.J. Barrow
  *                    <barrow_dj@mail.yahoo.com,djbarrow@de.ibm.com>
- * Copyright (c) 1999-2017 The strace developers.
+ * Copyright (c) 1999-2018 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,10 @@
 
 #include "defs.h"
 #include "native_defs.h"
+#include "ptrace.h"
 #include "nsig.h"
 #include "number_set.h"
-#include <sys/param.h>
+#include <limits.h>
 
 /* for struct iovec */
 #include <sys/uio.h>
@@ -45,7 +46,6 @@
 #include <asm/unistd.h>
 
 #include "regs.h"
-#include "ptrace.h"
 
 #if defined(SPARC64)
 # undef PTRACE_GETREGS
@@ -486,41 +486,6 @@ dumpio(struct tcb *tcp)
 	}
 }
 
-/*
- * Shuffle syscall numbers so that we don't have huge gaps in syscall table.
- * The shuffling should be an involution: shuffle_scno(shuffle_scno(n)) == n.
- */
-static kernel_ulong_t
-shuffle_scno(kernel_ulong_t scno)
-{
-#ifdef ARM_FIRST_SHUFFLED_SYSCALL	/* So far only 32-bit ARM needs this */
-	if (scno < ARM_FIRST_SHUFFLED_SYSCALL)
-		return scno;
-
-	/* __ARM_NR_cmpxchg? Swap with LAST_ORDINARY+1 */
-	if (scno == ARM_FIRST_SHUFFLED_SYSCALL)
-		return 0x000ffff0;
-	if (scno == 0x000ffff0)
-		return ARM_FIRST_SHUFFLED_SYSCALL;
-
-# define ARM_SECOND_SHUFFLED_SYSCALL (ARM_FIRST_SHUFFLED_SYSCALL + 1)
-	/*
-	 * Is it ARM specific syscall?
-	 * Swap [0x000f0000, 0x000f0000 + LAST_SPECIAL] range
-	 * with [SECOND_SHUFFLED, SECOND_SHUFFLED + LAST_SPECIAL] range.
-	 */
-	if (scno >= 0x000f0000 &&
-	    scno <= 0x000f0000 + ARM_LAST_SPECIAL_SYSCALL) {
-		return scno - 0x000f0000 + ARM_SECOND_SHUFFLED_SYSCALL;
-	}
-	if (scno <= ARM_SECOND_SHUFFLED_SYSCALL + ARM_LAST_SPECIAL_SYSCALL) {
-		return scno + 0x000f0000 - ARM_SECOND_SHUFFLED_SYSCALL;
-	}
-#endif /* ARM_FIRST_SHUFFLED_SYSCALL */
-
-	return scno;
-}
-
 const char *
 err_name(unsigned long err)
 {
@@ -586,7 +551,16 @@ tamper_with_syscall_entering(struct tcb *tcp, unsigned int *signo)
 static long
 tamper_with_syscall_exiting(struct tcb *tcp)
 {
+	if (!syserror(tcp)) {
+		error_msg("Failed to tamper with process %d: got no error "
+			  "(return value %#" PRI_klx ")",
+			  tcp->pid, tcp->u_rval);
+
+		return 1;
+	}
+
 	struct inject_opts *opts = tcb_inject_opts(tcp);
+	bool update_tcb = false;
 
 	if (!opts)
 		return 0;
@@ -598,6 +572,7 @@ tamper_with_syscall_exiting(struct tcb *tcp)
 		if (arch_set_success(tcp)) {
 			tcp->u_rval = u_rval;
 		} else {
+			update_tcb = true;
 			tcp->u_error = 0;
 		}
 	} else {
@@ -609,8 +584,15 @@ tamper_with_syscall_exiting(struct tcb *tcp)
 			tcp->u_error = new_error;
 			if (arch_set_error(tcp)) {
 				tcp->u_error = u_error;
+			} else {
+				update_tcb = true;
 			}
 		}
+	}
+
+	if (update_tcb) {
+		tcp->u_error = 0;
+		get_error(tcp, !(tcp->s_ent->sys_flags & SYSCALL_NEVER_FAILS));
 	}
 
 	return 0;
@@ -766,7 +748,7 @@ syscall_exiting_decode(struct tcb *tcp, struct timeval *ptv)
 int
 syscall_exiting_trace(struct tcb *tcp, struct timeval tv, int res)
 {
-	if (syserror(tcp) && syscall_tampered(tcp))
+	if (syscall_tampered(tcp))
 		tamper_with_syscall_exiting(tcp);
 
 	if (cflag) {
@@ -916,7 +898,7 @@ syscall_exiting_trace(struct tcb *tcp, struct timeval tv, int res)
 			switch (sys_res & RVAL_MASK) {
 			case RVAL_HEX:
 #if ANY_WORDSIZE_LESS_THAN_KERNEL_LONG
-				if (current_wordsize < sizeof(tcp->u_rval)) {
+				if (current_klongsize < sizeof(tcp->u_rval)) {
 					tprintf("= %#x",
 						(unsigned int) tcp->u_rval);
 				} else
@@ -931,7 +913,7 @@ syscall_exiting_trace(struct tcb *tcp, struct timeval tv, int res)
 				break;
 			case RVAL_UDECIMAL:
 #if ANY_WORDSIZE_LESS_THAN_KERNEL_LONG
-				if (current_wordsize < sizeof(tcp->u_rval)) {
+				if (current_klongsize < sizeof(tcp->u_rval)) {
 					tprintf("= %u",
 						(unsigned int) tcp->u_rval);
 				} else
@@ -1209,7 +1191,7 @@ set_regs(pid_t pid)
 struct sysent_buf {
 	struct tcb *tcp;
 	struct_sysent ent;
-	char buf[sizeof("syscall_%lu") + sizeof(kernel_ulong_t) * 3];
+	char buf[sizeof("syscall_0x") + sizeof(kernel_ulong_t) * 2];
 };
 
 static void
@@ -1238,6 +1220,8 @@ get_scno(struct tcb *tcp)
 	if (rc != 1)
 		return rc;
 
+	tcp->scno = shuffle_scno(tcp->scno);
+
 	if (scno_is_valid(tcp->scno)) {
 		tcp->s_ent = &sysent[tcp->scno];
 		tcp->qual_flg = qual_flags(tcp->scno);
@@ -1249,15 +1233,15 @@ get_scno(struct tcb *tcp)
 		s->ent.sen = SEN_printargs;
 		s->ent.sys_func = printargs;
 		s->ent.sys_name = s->buf;
-		xsprintf(s->buf, "syscall_%" PRI_klu, shuffle_scno(tcp->scno));
+		xsprintf(s->buf, "syscall_%#" PRI_klx, shuffle_scno(tcp->scno));
 
 		tcp->s_ent = &s->ent;
 		tcp->qual_flg = QUAL_RAW | DEFAULT_QUAL_FLAGS;
 
 		set_tcb_priv_data(tcp, s, free_sysent_buf);
 
-		debug_msg("pid %d invalid syscall %" PRI_kld,
-			  tcp->pid, tcp->scno);
+		debug_msg("pid %d invalid syscall %#" PRI_klx,
+			  tcp->pid, shuffle_scno(tcp->scno));
 	}
 
 	/*
@@ -1288,7 +1272,9 @@ get_syscall_result(struct tcb *tcp)
 	if (get_syscall_result_regs(tcp) < 0)
 		return -1;
 	tcp->u_error = 0;
-	get_error(tcp, !(tcp->s_ent->sys_flags & SYSCALL_NEVER_FAILS));
+	get_error(tcp,
+		  !(tcp->s_ent->sys_flags & SYSCALL_NEVER_FAILS)
+			|| syscall_tampered(tcp));
 
 	return 1;
 }
@@ -1304,13 +1290,10 @@ get_syscall_result(struct tcb *tcp)
 #ifdef HAVE_GETREGS_OLD
 # include "getregs_old.c"
 #endif
+#include "shuffle_scno.c"
 
 const char *
 syscall_name(kernel_ulong_t scno)
 {
-#if defined X32_PERSONALITY_NUMBER && defined __X32_SYSCALL_BIT
-	if (current_personality == X32_PERSONALITY_NUMBER)
-		scno &= ~__X32_SYSCALL_BIT;
-#endif
 	return scno_is_valid(scno) ? sysent[scno].sys_name : NULL;
 }

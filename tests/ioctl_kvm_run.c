@@ -4,7 +4,7 @@
  *
  * kvmtest.c author: Josh Triplett <josh@joshtriplett.org>
  * Copyright (c) 2015 Intel Corporation
- * Copyright (c) 2017 The strace developers.
+ * Copyright (c) 2017-2018 The strace developers.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -59,11 +59,23 @@ static const char vm_dev[] = "anon_inode:kvm-vm";
 static const char vcpu_dev[] = "anon_inode:kvm-vcpu";
 static size_t page_size;
 
-static void
-code(void)
-{
-	__asm__("mov $0xd80003f8, %edx; mov $'\n', %al; out %al, (%dx); hlt");
-}
+extern const char code[];
+extern const unsigned short code_size;
+
+__asm__(
+	".type code, @object		\n"
+	"code:				\n"
+	"	mov $0xd80003f8, %edx	\n"
+	"	mov $'\n', %al		\n"
+	"	out %al, (%dx)		\n"
+	"	hlt			\n"
+	".size code, . - code		\n"
+	".type code_size, @object	\n"
+	"code_size:			\n"
+	"	.short . - code		\n"
+	".size code_size, . - code_size	\n"
+	);
+
 
 static void
 run_kvm(const int vcpu_fd, struct kvm_run *const run, const size_t mmap_size,
@@ -107,10 +119,7 @@ run_kvm(const int vcpu_fd, struct kvm_run *const run, const size_t mmap_size,
 	       (uintmax_t) regs.rsp, (uintmax_t) regs.rbp,
 	       (uintmax_t) regs.rip, (uintmax_t) regs.rflags);
 
-	/* Copy the code till the end of page */
-	size_t code_size = page_size - ((uintptr_t) code & (page_size - 1));
-	if (code_size < 16)
-		code_size = 16;
+	/* Copy the code */
 	memcpy(mem, code, code_size);
 
 	const char *p = "\n";
@@ -136,6 +145,19 @@ run_kvm(const int vcpu_fd, struct kvm_run *const run, const size_t mmap_size,
 			else
 				error_msg_and_fail("unhandled KVM_EXIT_IO");
 			break;
+		case KVM_EXIT_MMIO:
+			error_msg_and_fail("Got an unexpected MMIO exit:"
+					   " phys_addr %#llx,"
+					   " data %02x %02x %02x %02x"
+						" %02x %02x %02x %02x,"
+					   " len %u, is_write %hhu",
+					   (unsigned long long) run->mmio.phys_addr,
+					   run->mmio.data[0], run->mmio.data[1],
+					   run->mmio.data[2], run->mmio.data[3],
+					   run->mmio.data[4], run->mmio.data[5],
+					   run->mmio.data[6], run->mmio.data[7],
+					   run->mmio.len, run->mmio.is_write);
+
 		default:
 			error_msg_and_fail("exit_reason = %#x",
 					   run->exit_reason);

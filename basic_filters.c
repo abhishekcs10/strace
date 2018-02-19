@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Dmitry V. Levin <ldv@altlinux.org>
- * Copyright (c) 2016-2017 The strace developers.
+ * Copyright (c) 2016-2018 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,6 +111,7 @@ lookup_class(const char *s)
 		{ "%statfs",	TRACE_STATFS	},
 		{ "%fstatfs",	TRACE_FSTATFS	},
 		{ "%%statfs",	TRACE_STATFS_LIKE	},
+		{ "%pure",	TRACE_PURE	},
 		/* legacy class names */
 		{ "desc",	TRACE_DESC	},
 		{ "file",	TRACE_FILE	},
@@ -147,18 +148,32 @@ qualify_syscall_class(const char *s, struct number_set *set)
 	return true;
 }
 
+kernel_long_t
+scno_by_name(const char *s, unsigned int p, kernel_long_t start)
+{
+	if (p >= SUPPORTED_PERSONALITIES)
+		return -1;
+
+	for (kernel_ulong_t i = start; i < nsyscall_vec[p]; ++i) {
+		if (sysent_vec[p][i].sys_name &&
+		    strcmp(s, sysent_vec[p][i].sys_name) == 0)
+			return i;
+	}
+
+	return -1;
+}
+
 static bool
 qualify_syscall_name(const char *s, struct number_set *set)
 {
 	bool found = false;
 
 	for (unsigned int p = 0; p < SUPPORTED_PERSONALITIES; ++p) {
-		for (unsigned int i = 0; i < nsyscall_vec[p]; ++i) {
-			if (sysent_vec[p][i].sys_name &&
-			    strcmp(s, sysent_vec[p][i].sys_name) == 0) {
-				add_number_to_set_array(i, set, p);
-				found = true;
-			}
+		for (kernel_long_t scno = 0;
+		     (scno = scno_by_name(s, p, scno)) >= 0;
+		     ++scno) {
+			add_number_to_set_array(scno, set, p);
+			found = true;
 		}
 	}
 

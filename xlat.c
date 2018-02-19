@@ -3,7 +3,7 @@
  * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
  * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
  * Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
- * Copyright (c) 1999-2017 The strace developers.
+ * Copyright (c) 1999-2018 The strace developers.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -160,7 +160,8 @@ addflags(const struct xlat *xlat, uint64_t flags)
 /*
  * Interpret `xlat' as an array of flags.
  * Print to static string the entries whose bits are on in `flags'
- * Return static string.
+ * Return static string.  If 0 is provided as flags, and there is no flag that
+ * has the value of 0 (it should be the first in xlat table), return NULL.
  */
 const char *
 sprintflags(const char *prefix, const struct xlat *xlat, uint64_t flags)
@@ -187,10 +188,14 @@ sprintflags(const char *prefix, const struct xlat *xlat, uint64_t flags)
 				break;
 		}
 	}
+
 	if (flags) {
 		if (found)
 			*outptr++ = '|';
 		outptr = xappendstr(outstr, outptr, "%#" PRIx64, flags);
+	} else {
+		if (!found)
+			return NULL;
 	}
 
 	return outstr;
